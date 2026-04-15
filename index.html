@@ -44,6 +44,13 @@
 
     <!-- COLUNA 2: Dados + Textos -->
     <div class="form-col">
+      <div class="sec">Episódio</div>
+      <div class="fg">
+        <div class="fl">Número do Episódio</div>
+        <input id="fEp" placeholder="ex: 1" value="1" />
+      </div>
+
+      <div class="divider"></div>
       <div class="sec">Dados do Seguidor</div>
       <div class="row">
         <div class="fg">
@@ -64,14 +71,14 @@
       <div class="sec">Por que tirei</div>
       <div class="fg">
         <div class="fl">Texto da Tela 2 — explique as saídas</div>
-        <textarea id="fSaidas" rows="8" placeholder="Ex: Saiu o Mbappé pois o custo não justifica o nível comparado ao que tenho disponível no budget..."></textarea>
+        <textarea id="fSaidas" rows="8" placeholder="Ex:&#10;- Mbappé: não se encaixa no Meta do jogo&#10;- Neymar: custo muito alto"></textarea>
       </div>
 
       <div class="divider"></div>
       <div class="sec">Quem trouxe</div>
       <div class="fg">
         <div class="fl">Texto da Tela 3 — explique as chegadas</div>
-        <textarea id="fChegadas" rows="8" placeholder="Ex: Trouxe o Vini Jr para ocupar o lado esquerdo, ele tem pique e finta pra desafiar a marcação..."></textarea>
+        <textarea id="fChegadas" rows="8" placeholder="Ex:&#10;- Vini Jr: ocupa o lado esquerdo, pique e finta&#10;- Rodrygo: mobilidade no ataque"></textarea>
       </div>
     </div>
 
@@ -105,7 +112,6 @@
 
         <div class="flash-overlay" id="flash"></div>
         <div class="progress-bar" id="progressBar"></div>
-        <div class="ep-scene-badge" id="epBadge">Ep.1</div>
 
         <!-- Tela 1: base layer -->
         <div class="analis-tag" id="anlTag">
@@ -127,7 +133,7 @@
               <img class="screen-photo" id="teamImgSaidas" src="" alt="" />
             </div>
             <div class="screen-title" id="saidasTitle">
-              <div class="screen-title-inner">Saídas</div>
+              <div class="screen-title-inner">Quem Saiu?</div>
             </div>
             <div class="text-card" id="saidasCard">
               <div class="text-card-body" id="saidasText"></div>
@@ -143,7 +149,7 @@
               <img class="screen-photo" id="teamImgChegadas" src="" alt="" />
             </div>
             <div class="screen-title" id="chegadasTitle">
-              <div class="screen-title-inner">Chegadas</div>
+              <div class="screen-title-inner">Quem Chegou?</div>
             </div>
             <div class="text-card" id="chegadasCard">
               <div class="text-card-body" id="chegadasText"></div>
@@ -159,8 +165,8 @@
           <div class="corner bl" id="cBL"></div>
           <div class="corner br" id="cBR"></div>
           <div class="cta-content">
-            <div class="cta-eyebrow">Análise de Times</div>
-            <div class="cta-question">QUER QUE EU ANALISE SEU TIME?</div>
+
+            <div class="cta-question">QUER TER SEU TIME ANALISADO?</div>
             <div class="cta-line" id="ctaLine"></div>
             <div class="cta-free"><span class="cf-l">G</span><span class="cf-l">R</span><span class="cf-l">A</span><span class="cf-l">T</span><span class="cf-l">U</span><span class="cf-l">I</span><span class="cf-l">T</span><span class="cf-l">O</span></div>
             <div class="cta-dm">SÓ ME CHAMAR NA DM!</div>
@@ -189,6 +195,7 @@
   </div>
   <div class="fs-close" id="fsClose" onclick="closeFullscreen()">✕ Fechar</div>
   <div class="fs-scene-wrap" id="fsSceneWrap">
+    <div class="ep-intro-badge" id="epIntroBadge">Ep.1</div>
     <div class="scene-preview" id="sceneFS" style="border-radius:0;width:100%;height:100%">
 
       <!-- Background SVG FS -->
@@ -213,7 +220,6 @@
 
       <div class="flash-overlay" id="flashFS"></div>
       <div class="progress-bar" id="progressBarFS"></div>
-      <div class="ep-scene-badge" id="epBadgeFS">Ep.1</div>
 
       <!-- Tela 1 FS -->
       <div class="analis-tag" id="anlTagFS">
@@ -235,7 +241,7 @@
             <img class="screen-photo" id="teamImgSaidasFS" src="" alt="" />
           </div>
           <div class="screen-title" id="saidasTitleFS">
-            <div class="screen-title-inner">Saídas</div>
+            <div class="screen-title-inner">Quem Saiu?</div>
           </div>
           <div class="text-card" id="saidasCardFS">
             <div class="text-card-body" id="saidasTextFS"></div>
@@ -251,7 +257,7 @@
             <img class="screen-photo" id="teamImgChegadasFS" src="" alt="" />
           </div>
           <div class="screen-title" id="chegadasTitleFS">
-            <div class="screen-title-inner">Chegadas</div>
+            <div class="screen-title-inner">Quem Chegou?</div>
           </div>
           <div class="text-card" id="chegadasCardFS">
             <div class="text-card-body" id="chegadasTextFS"></div>
@@ -267,8 +273,7 @@
         <div class="corner bl" id="cBLFS"></div>
         <div class="corner br" id="cBRFS"></div>
         <div class="cta-content">
-          <div class="cta-eyebrow">Análise de Times</div>
-          <div class="cta-question">QUER QUE EU ANALISE SEU TIME?</div>
+          <div class="cta-question">QUER TER SEU TIME ANALISADO?</div>
           <div class="cta-line" id="ctaLineFS"></div>
           <div class="cta-free"><span class="cf-l">G</span><span class="cf-l">R</span><span class="cf-l">A</span><span class="cf-l">T</span><span class="cf-l">U</span><span class="cf-l">I</span><span class="cf-l">T</span><span class="cf-l">O</span></div>
           <div class="cta-dm">SÓ ME CHAMAR NA DM!</div>

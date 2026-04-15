@@ -22,6 +22,11 @@ function onFile(e, slot) {
 
 function g(id) { return document.getElementById(id); }
 
+function parseHighlight(text) {
+  const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return safe.replace(/^(- )(.+?)(:)/gm, '$1<span class="hl">$2</span>$3');
+}
+
 function sP(sfx, t) {
   const b = g('progressBar' + sfx);
   if (!b) return;
@@ -39,11 +44,11 @@ function sP(sfx, t) {
 
 function flash(sfx, cb) {
   const f = g('flash' + sfx);
-  f.style.animation = 'none';
+  f.classList.remove('scanning');
   void f.offsetHeight;
   f.classList.add('scanning');
   if (cb) setTimeout(cb, 380);
-  setTimeout(() => { f.classList.remove('scanning'); f.style.animation = ''; }, 750);
+  setTimeout(() => f.classList.remove('scanning'), 750);
 }
 
 function mF(sfx, n, iv, cb) {
@@ -56,7 +61,7 @@ function aIn(id, d) {
 
 function rAll(sfx) {
   [
-    'epBadge', 'anlTag', 'galanTag', 'teamWrap', 'metaBadges',
+    'anlTag', 'galanTag', 'teamWrap', 'metaBadges',
     'actSaidas', 'saidasPhotoWrap', 'saidasTitle', 'saidasCard',
     'actChegadas', 'chegadasPhotoWrap', 'chegadasTitle', 'chegadasCard',
     'actCta', 'cTL', 'cTR', 'cBL', 'cBR'
@@ -76,8 +81,13 @@ function prepData(sfx) {
   fBadge.textContent = 'Forragem: ' + FORRAGEM_LABEL[fKey];
   fBadge.className = 'badge ' + FORRAGEM_CLASS[fKey];
 
-  g('saidasText'   + sfx).textContent = g('fSaidas').value   || '—';
-  g('chegadasText' + sfx).textContent = g('fChegadas').value || '—';
+  g('saidasText'   + sfx).innerHTML = parseHighlight(g('fSaidas').value   || '—');
+  g('chegadasText' + sfx).innerHTML = parseHighlight(g('fChegadas').value || '—');
+
+  const epNum = parseInt((g('fEp') && g('fEp').value.trim()) || '1');
+  const epPad = String(epNum).padStart(2, '0');
+  const epBadge = g('epIntroBadge');
+  if (epBadge) epBadge.innerHTML = '<span class="ep-label">EP</span><span class="ep-num">' + epPad + '</span><span class="ep-arrow">▸</span>';
 }
 
 function runAnim(sfx) {
@@ -86,7 +96,6 @@ function runAnim(sfx) {
   flash(sfx);
 
   // Tela 1 — Time Original
-  aIn('epBadge'    + sfx, 100);
   aIn('anlTag'     + sfx, 200);
   aIn('galanTag'   + sfx, 200);
   aIn('teamWrap'   + sfx, 650);
@@ -159,9 +168,10 @@ function openFullscreen() {
   g('fsOverlay').classList.add('open');
 
   const intro = g('fsIntro');
-  setTimeout(() => intro.classList.add('in'),    50);
-  setTimeout(() => intro.classList.remove('in'), 2000);
-  setTimeout(() => runAnim('FS'),                2500);
+  const epBadge = g('epIntroBadge');
+  setTimeout(() => { intro.classList.add('in'); if (epBadge) epBadge.classList.add('in'); }, 50);
+  setTimeout(() => { intro.classList.remove('in'); if (epBadge) epBadge.classList.remove('in'); }, 2000);
+  setTimeout(() => runAnim('FS'), 2500);
 
   _fsCloseTimer = setTimeout(() => { g('fsClose').style.display = 'block'; }, 25200);
 }
