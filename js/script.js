@@ -42,8 +42,8 @@ function flash(sfx, cb) {
   f.style.animation = 'none';
   void f.offsetHeight;
   f.classList.add('scanning');
-  if (cb) setTimeout(cb, 300);
-  setTimeout(() => { f.classList.remove('scanning'); f.style.animation = ''; }, 600);
+  if (cb) setTimeout(cb, 380);
+  setTimeout(() => { f.classList.remove('scanning'); f.style.animation = ''; }, 750);
 }
 
 function mF(sfx, n, iv, cb) {
@@ -56,7 +56,7 @@ function aIn(id, d) {
 
 function rAll(sfx) {
   [
-    'anlTag', 'galanTag', 'teamWrap', 'metaBadges',
+    'epBadge', 'anlTag', 'galanTag', 'teamWrap', 'metaBadges',
     'actSaidas', 'saidasPhotoWrap', 'saidasTitle', 'saidasCard',
     'actChegadas', 'chegadasPhotoWrap', 'chegadasTitle', 'chegadasCard',
     'actCta', 'cTL', 'cTR', 'cBL', 'cBR'
@@ -86,6 +86,7 @@ function runAnim(sfx) {
   flash(sfx);
 
   // Tela 1 — Time Original
+  aIn('epBadge'    + sfx, 100);
   aIn('anlTag'     + sfx, 200);
   aIn('galanTag'   + sfx, 200);
   aIn('teamWrap'   + sfx, 650);
