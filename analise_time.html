@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análise de Times — Galandinho</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app">
+  <div class="form-grid">
+
+    <!-- COLUNA 1: Fotos -->
+    <div class="form-col">
+      <div>
+        <div class="app-logo">Análise de Times</div>
+        <div class="app-sub">Galandinho</div>
+      </div>
+
+      <div class="sec">Time Original</div>
+      <div class="upload-zone">
+        <input type="file" accept="image/*" onchange="onFile(event,'orig')" />
+        <div class="upload-text">Foto do time antes da análise</div>
+        <div class="upload-name" id="uploadName1"></div>
+        <img class="upload-preview" id="uploadPrev1" alt="" />
+      </div>
+
+      <div class="sec">Time Sem Saídas</div>
+      <div class="upload-zone">
+        <input type="file" accept="image/*" onchange="onFile(event,'saidas')" />
+        <div class="upload-text">Time sem os jogadores retirados</div>
+        <div class="upload-name" id="uploadName2"></div>
+        <img class="upload-preview" id="uploadPrev2" alt="" />
+      </div>
+
+      <div class="sec">Time Analisado</div>
+      <div class="upload-zone">
+        <input type="file" accept="image/*" onchange="onFile(event,'final')" />
+        <div class="upload-text">Time após análise completa</div>
+        <div class="upload-name" id="uploadName3"></div>
+        <img class="upload-preview" id="uploadPrev3" alt="" />
+      </div>
+    </div>
+
+    <!-- COLUNA 2: Dados + Textos -->
+    <div class="form-col">
+      <div class="sec">Dados do Seguidor</div>
+      <div class="row">
+        <div class="fg">
+          <div class="fl">Coins</div>
+          <input id="fCoins" placeholder="ex: 500K" />
+        </div>
+        <div class="fg">
+          <div class="fl">Forragem</div>
+          <select id="fForragem">
+            <option value="muito">Muito</option>
+            <option value="mediano" selected>Mediano</option>
+            <option value="pouco">Pouco</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="sec">Por que tirei</div>
+      <div class="fg">
+        <div class="fl">Texto da Tela 2 — explique as saídas</div>
+        <textarea id="fSaidas" rows="8" placeholder="Ex: Saiu o Mbappé pois o custo não justifica o nível comparado ao que tenho disponível no budget..."></textarea>
+      </div>
+
+      <div class="divider"></div>
+      <div class="sec">Quem trouxe</div>
+      <div class="fg">
+        <div class="fl">Texto da Tela 3 — explique as chegadas</div>
+        <textarea id="fChegadas" rows="8" placeholder="Ex: Trouxe o Vini Jr para ocupar o lado esquerdo, ele tem pique e finta pra desafiar a marcação..."></textarea>
+      </div>
+    </div>
+
+    <!-- COLUNA 3: Preview -->
+    <div class="form-col">
+      <div class="sec">Preview</div>
+      <div class="scene-preview" id="scenePreview" onclick="replay()">
+
+        <!-- Background SVG -->
+        <svg class="bg-svg" viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="bg1" cx="85%" cy="10%" r="55%"><stop offset="0%" stop-color="#7c3aed" stop-opacity="0.45"/><stop offset="100%" stop-color="#08050f" stop-opacity="0"/></radialGradient>
+            <radialGradient id="bg2" cx="15%" cy="85%" r="50%"><stop offset="0%" stop-color="#d946ef" stop-opacity="0.22"/><stop offset="100%" stop-color="#08050f" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="360" height="640" fill="#08050f"/>
+          <rect width="360" height="640" fill="url(#bg1)"/>
+          <rect width="360" height="640" fill="url(#bg2)"/>
+          <!-- Diagonal lines -->
+          <line x1="-60" y1="0" x2="280" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
+          <line x1="40" y1="0" x2="380" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
+          <line x1="140" y1="0" x2="480" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
+          <line x1="240" y1="0" x2="580" y2="640" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.05"/>
+          <line x1="-160" y1="0" x2="180" y2="640" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.04"/>
+          <!-- Corner accents -->
+          <polygon points="360,0 360,100 260,0" fill="#8b5cf6" opacity="0.07"/>
+          <polygon points="0,640 100,640 0,540" fill="#d946ef" opacity="0.06"/>
+          <!-- Diamond shape center-right -->
+          <polygon points="310,300 330,320 310,340 290,320" fill="none" stroke="#d946ef" stroke-width="0.8" stroke-opacity="0.12"/>
+          <polygon points="310,285 345,320 310,355 275,320" fill="none" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.07"/>
+        </svg>
+
+        <div class="flash-overlay" id="flash"></div>
+        <div class="progress-bar" id="progressBar"></div>
+
+        <!-- Tela 1: base layer -->
+        <div class="analis-tag" id="anlTag">
+          <div class="analis-main">ANÁLISE DE TIMES</div>
+        </div>
+        <div class="team-wrap" id="teamWrap">
+          <img class="team-img" id="teamImgOrig" src="" alt="" />
+        </div>
+        <div class="meta-badges" id="metaBadges">
+          <div class="badge" id="badgeCoins">💰 —</div>
+          <div class="badge" id="badgeForragem">Forragem: —</div>
+        </div>
+
+        <!-- Tela 2: Saídas -->
+        <div class="act-screen act-saidas" id="actSaidas">
+          <div class="act-screen-bg"></div>
+          <div class="team-screen-content">
+            <div class="screen-photo-wrap" id="saidasPhotoWrap">
+              <img class="screen-photo" id="teamImgSaidas" src="" alt="" />
+            </div>
+            <div class="screen-title" id="saidasTitle">
+              <div class="screen-title-inner">Saídas</div>
+            </div>
+            <div class="text-card" id="saidasCard">
+              <div class="text-card-body" id="saidasText"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tela 3: Chegadas -->
+        <div class="act-screen act-chegadas" id="actChegadas">
+          <div class="act-screen-bg"></div>
+          <div class="team-screen-content">
+            <div class="screen-photo-wrap" id="chegadasPhotoWrap">
+              <img class="screen-photo" id="teamImgChegadas" src="" alt="" />
+            </div>
+            <div class="screen-title" id="chegadasTitle">
+              <div class="screen-title-inner">Chegadas</div>
+            </div>
+            <div class="text-card" id="chegadasCard">
+              <div class="text-card-body" id="chegadasText"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tela 4: CTA -->
+        <div class="act-screen act-cta" id="actCta">
+          <div class="cta-bg"></div>
+          <div class="corner tl" id="cTL"></div>
+          <div class="corner tr" id="cTR"></div>
+          <div class="corner bl" id="cBL"></div>
+          <div class="corner br" id="cBR"></div>
+          <div class="cta-content">
+            <div class="cta-eyebrow">Análise de Times</div>
+            <div class="cta-question">QUER QUE EU ANALISE SEU TIME?</div>
+            <div class="cta-line" id="ctaLine"></div>
+            <div class="cta-free">GRATUITO</div>
+            <div class="cta-dm">SÓ ME CHAMAR NA DM!</div>
+          </div>
+        </div>
+
+      </div><!-- /scene-preview -->
+
+      <div class="action-row">
+        <div class="play-btn" onclick="playAnimation()">▶ Gerar Animação</div>
+        <div class="fullscreen-btn" onclick="openFullscreen()">⛶ Tela Cheia</div>
+      </div>
+    </div><!-- /form-col 3 -->
+
+  </div><!-- /form-grid -->
+</div><!-- /app -->
+
+<!-- ===== FULLSCREEN OVERLAY ===== -->
+<div class="fs-overlay" id="fsOverlay">
+  <div class="fs-intro" id="fsIntro">
+    <div class="fs-ep-badge">Ep.1</div>
+    <div class="fs-intro-content">
+      <div class="fs-intro-label">Galandinho</div>
+      <div class="fs-intro-title">ANÁLISE DE TIMES</div>
+      <img class="fs-intro-team" id="introTeamImg" src="" alt="" />
+    </div>
+  </div>
+  <div class="fs-close" id="fsClose" onclick="closeFullscreen()">✕ Fechar</div>
+  <div class="fs-scene-wrap" id="fsSceneWrap">
+    <div class="scene-preview" id="sceneFS" style="border-radius:0;width:100%;height:100%">
+
+      <!-- Background SVG FS -->
+      <svg class="bg-svg" viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="bg1fs" cx="85%" cy="10%" r="55%"><stop offset="0%" stop-color="#7c3aed" stop-opacity="0.45"/><stop offset="100%" stop-color="#08050f" stop-opacity="0"/></radialGradient>
+          <radialGradient id="bg2fs" cx="15%" cy="85%" r="50%"><stop offset="0%" stop-color="#d946ef" stop-opacity="0.22"/><stop offset="100%" stop-color="#08050f" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="360" height="640" fill="#08050f"/>
+        <rect width="360" height="640" fill="url(#bg1fs)"/>
+        <rect width="360" height="640" fill="url(#bg2fs)"/>
+        <line x1="-60" y1="0" x2="280" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
+        <line x1="40" y1="0" x2="380" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
+        <line x1="140" y1="0" x2="480" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
+        <line x1="240" y1="0" x2="580" y2="640" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.05"/>
+        <line x1="-160" y1="0" x2="180" y2="640" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.04"/>
+        <polygon points="360,0 360,100 260,0" fill="#8b5cf6" opacity="0.07"/>
+        <polygon points="0,640 100,640 0,540" fill="#d946ef" opacity="0.06"/>
+        <polygon points="310,300 330,320 310,340 290,320" fill="none" stroke="#d946ef" stroke-width="0.8" stroke-opacity="0.12"/>
+        <polygon points="310,285 345,320 310,355 275,320" fill="none" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.07"/>
+      </svg>
+
+      <div class="flash-overlay" id="flashFS"></div>
+      <div class="progress-bar" id="progressBarFS"></div>
+
+      <!-- Tela 1 FS -->
+      <div class="analis-tag" id="anlTagFS">
+        <div class="analis-main">ANÁLISE DE TIMES</div>
+      </div>
+      <div class="team-wrap" id="teamWrapFS">
+        <img class="team-img" id="teamImgOrigFS" src="" alt="" />
+      </div>
+      <div class="meta-badges" id="metaBadgesFS">
+        <div class="badge" id="badgeCoinsFS">💰 —</div>
+        <div class="badge" id="badgeForragemFS">Forragem: —</div>
+      </div>
+
+      <!-- Tela 2 FS -->
+      <div class="act-screen act-saidas" id="actSaidasFS">
+        <div class="act-screen-bg"></div>
+        <div class="team-screen-content">
+          <div class="screen-photo-wrap" id="saidasPhotoWrapFS">
+            <img class="screen-photo" id="teamImgSaidasFS" src="" alt="" />
+          </div>
+          <div class="screen-title" id="saidasTitleFS">
+            <div class="screen-title-inner">Saídas</div>
+          </div>
+          <div class="text-card" id="saidasCardFS">
+            <div class="text-card-body" id="saidasTextFS"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tela 3 FS -->
+      <div class="act-screen act-chegadas" id="actChegadasFS">
+        <div class="act-screen-bg"></div>
+        <div class="team-screen-content">
+          <div class="screen-photo-wrap" id="chegadasPhotoWrapFS">
+            <img class="screen-photo" id="teamImgChegadasFS" src="" alt="" />
+          </div>
+          <div class="screen-title" id="chegadasTitleFS">
+            <div class="screen-title-inner">Chegadas</div>
+          </div>
+          <div class="text-card" id="chegadasCardFS">
+            <div class="text-card-body" id="chegadasTextFS"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tela 4 FS -->
+      <div class="act-screen act-cta" id="actCtaFS">
+        <div class="cta-bg"></div>
+        <div class="corner tl" id="cTLFS"></div>
+        <div class="corner tr" id="cTRFS"></div>
+        <div class="corner bl" id="cBLFS"></div>
+        <div class="corner br" id="cBRFS"></div>
+        <div class="cta-content">
+          <div class="cta-eyebrow">Análise de Times</div>
+          <div class="cta-question">QUER QUE EU ANALISE SEU TIME?</div>
+          <div class="cta-line" id="ctaLineFS"></div>
+          <div class="cta-free">GRATUITO</div>
+          <div class="cta-dm">SÓ ME CHAMAR NA DM!</div>
+        </div>
+      </div>
+
+    </div><!-- /sceneFS -->
+  </div>
+</div><!-- /fsOverlay -->
+
+<script src="js/script.js"></script>
+</body>
+</html>
