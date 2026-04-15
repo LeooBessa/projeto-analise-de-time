@@ -39,19 +39,17 @@ function sP(sfx, t) {
 
 function flash(sfx, cb) {
   const f = g('flash' + sfx);
-  f.style.transition = 'none';
-  f.style.opacity = '0.85';
+  f.style.transition = 'opacity 0.2s ease';
+  f.style.opacity = '0.96';
   setTimeout(() => {
-    f.style.transition = 'opacity 0.22s';
+    f.style.transition = 'opacity 0.35s ease';
     f.style.opacity = '0';
-    if (cb) setTimeout(cb, 65);
-  }, 90);
+    if (cb) setTimeout(cb, 200);
+  }, 220);
 }
 
 function mF(sfx, n, iv, cb) {
-  let i = 0;
-  function go() { flash(sfx, () => { i++; if (i < n) setTimeout(go, iv); else if (cb) setTimeout(cb, 80); }); }
-  go();
+  flash(sfx, cb);
 }
 
 function aIn(id, d) {
