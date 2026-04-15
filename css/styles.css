@@ -36,7 +36,9 @@ textarea { resize: vertical; line-height: 1.55; }
 .bg-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 @keyframes barShimmer { 0% { background-position: -300% 0; } 100% { background-position: 300% 0; } }
 .progress-bar { position: absolute; top: 0; left: 0; height: 4px; z-index: 20; width: 0%; background: linear-gradient(90deg, #6d28d9 0%, #d946ef 40%, #f9a8d4 55%, #d946ef 70%, #6d28d9 100%); background-size: 300% 100%; animation: barShimmer 2s linear infinite; box-shadow: 0 0 8px rgba(217,70,239,0.9), 0 0 18px rgba(217,70,239,0.4); }
-.flash-overlay { position: absolute; inset: 0; z-index: 100; background: #04000e; opacity: 0; pointer-events: none; }
+.flash-overlay { position: absolute; left: 0; right: 0; top: 0; height: 14%; z-index: 100; background: linear-gradient(to bottom, transparent 0%, rgba(139,92,246,0.4) 20%, rgba(217,70,239,0.85) 48%, rgba(255,255,255,0.95) 50%, rgba(217,70,239,0.85) 52%, rgba(139,92,246,0.4) 80%, transparent 100%); opacity: 0; pointer-events: none; transform: translateY(-100%); }
+@keyframes scanDown { 0% { transform: translateY(-100%); opacity: 0.9; } 100% { transform: translateY(800%); opacity: 0.7; } }
+.flash-overlay.scanning { animation: scanDown 0.55s cubic-bezier(0.25,0,0.6,1) forwards; }
 
 /* ===== SCREEN 1 — BASE LAYER ===== */
 .analis-tag { position: absolute; top: 14px; left: 16px; z-index: 10; opacity: 0; transform: translateX(-18px); transition: opacity 0.45s, transform 0.45s ease-out; }
@@ -75,10 +77,10 @@ textarea { resize: vertical; line-height: 1.55; }
 .act-chegadas .screen-photo { border-color: rgba(52,211,153,0.3); filter: drop-shadow(0 0 14px rgba(52,211,153,0.38)); }
 .screen-title { opacity: 0; transform: translateY(6px); transition: opacity 0.35s, transform 0.35s ease-out; flex-shrink: 0; overflow: visible; padding-bottom: 2px; }
 .screen-title.in { opacity: 1; transform: translateY(0); }
-.screen-title-inner { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 3px; color: #f5f0ff; display: flex; align-items: center; gap: 8px; overflow: visible; }
+.screen-title-inner { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 3.8cqw; font-weight: 800; letter-spacing: 1px; color: #f5f0ff; display: flex; align-items: center; gap: 6px; overflow: visible; }
 .act-saidas .screen-title-inner { color: #fca5a5; }
 .act-saidas .screen-title-inner::before { background: #f87171; }
-.screen-title-inner::before { content: ''; display: inline-block; width: 4px; height: 20px; background: #d946ef; border-radius: 1px; flex-shrink: 0; }
+.screen-title-inner::before { content: ''; display: inline-block; width: 0.7cqw; height: 4cqw; background: #d946ef; border-radius: 1px; flex-shrink: 0; }
 .act-chegadas .screen-title-inner { color: #86efac; }
 .act-chegadas .screen-title-inner::before { background: #34d399; }
 /* Card: borda esquerda grossa fuchsia (≠ card roxo do original) */
@@ -157,7 +159,8 @@ textarea { resize: vertical; line-height: 1.55; }
 .fs-intro-label { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 6px; color: rgba(217,70,239,0.5); text-transform: uppercase; }
 .fs-intro-title { font-family: 'Syne', sans-serif; font-size: clamp(11px, 2.4vw, 20px); font-weight: 800; letter-spacing: 3px; color: #d946ef; text-shadow: 0 0 30px rgba(217,70,239,0.9), 0 0 60px rgba(217,70,239,0.3); line-height: 1; white-space: nowrap; }
 .ep-badge { position: absolute; top: 5px; left: 10px; z-index: 15; font-family: 'Orbitron', sans-serif; font-size: 1.9cqw; font-weight: 700; color: rgba(217,70,239,0.7); letter-spacing: 1px; text-shadow: 0 0 8px rgba(217,70,239,0.45); }
-.fs-ep-badge { position: absolute; top: 24px; left: 24px; font-family: 'Orbitron', sans-serif; font-size: clamp(18px, 2.8vw, 28px); font-weight: 700; color: rgba(217,70,239,0.85); letter-spacing: 3px; z-index: 9999; text-shadow: 0 0 18px rgba(217,70,239,0.7), 0 0 36px rgba(217,70,239,0.3); }
+.fs-ep-badge { position: absolute; top: 32px; left: 32px; font-family: 'Orbitron', sans-serif; font-size: clamp(32px, 6vw, 56px); font-weight: 700; color: rgba(217,70,239,0.92); letter-spacing: 5px; z-index: 9999; text-shadow: 0 0 28px rgba(217,70,239,0.9), 0 0 56px rgba(217,70,239,0.4); opacity: 0; transform: translateX(-14px); transition: opacity 0.5s 0.3s, transform 0.5s 0.3s ease-out; }
+.fs-intro.in .fs-ep-badge { opacity: 1; transform: translateX(0); }
 .fs-intro-team { max-width: min(68vw, 52vh); border-radius: 8px; box-shadow: 0 0 50px rgba(217,70,239,0.55), 0 0 100px rgba(139,92,246,0.2); display: block; }
 
 @media (max-width: 700px) {
