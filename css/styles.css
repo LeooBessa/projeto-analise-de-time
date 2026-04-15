@@ -41,7 +41,7 @@ textarea { resize: vertical; line-height: 1.55; }
 /* ===== SCREEN 1 — BASE LAYER ===== */
 .analis-tag { position: absolute; top: 14px; left: 16px; z-index: 10; opacity: 0; transform: translateX(-18px); transition: opacity 0.45s, transform 0.45s ease-out; }
 .analis-tag.in { opacity: 1; transform: translateX(0); }
-.analis-main { font-family: 'Syne', sans-serif; font-size: 2.6cqw; font-weight: 800; letter-spacing: 0.3cqw; color: #fff; border-bottom: 2px solid #d946ef; padding-bottom: 2px; line-height: 1; }
+.analis-main { font-family: 'Syne', sans-serif; font-size: 2.0cqw; font-weight: 800; letter-spacing: 0.3cqw; color: #fff; border-bottom: 2px solid #d946ef; padding-bottom: 2px; line-height: 1; }
 .analis-sub { font-size: 7px; color: rgba(217,70,239,0.5); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
 .galan-tag { position: absolute; top: 14px; right: 16px; z-index: 10; opacity: 0; transform: translateX(18px); transition: opacity 0.45s, transform 0.45s ease-out; text-align: right; }
 .galan-tag.in { opacity: 1; transform: translateX(0); }
@@ -75,7 +75,7 @@ textarea { resize: vertical; line-height: 1.55; }
 .act-chegadas .screen-photo { border-color: rgba(52,211,153,0.3); filter: drop-shadow(0 0 14px rgba(52,211,153,0.38)); }
 .screen-title { opacity: 0; transform: translateY(6px); transition: opacity 0.35s, transform 0.35s ease-out; flex-shrink: 0; overflow: visible; padding-bottom: 2px; }
 .screen-title.in { opacity: 1; transform: translateY(0); }
-.screen-title-inner { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; letter-spacing: 3px; color: #f5f0ff; display: flex; align-items: center; gap: 8px; overflow: visible; }
+.screen-title-inner { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 3px; color: #f5f0ff; display: flex; align-items: center; gap: 8px; overflow: visible; }
 .act-saidas .screen-title-inner { color: #fca5a5; }
 .act-saidas .screen-title-inner::before { background: #f87171; }
 .screen-title-inner::before { content: ''; display: inline-block; width: 4px; height: 20px; background: #d946ef; border-radius: 1px; flex-shrink: 0; }
@@ -157,6 +157,7 @@ textarea { resize: vertical; line-height: 1.55; }
 .fs-intro-label { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 6px; color: rgba(217,70,239,0.5); text-transform: uppercase; }
 .fs-intro-title { font-family: 'Syne', sans-serif; font-size: clamp(11px, 2.4vw, 20px); font-weight: 800; letter-spacing: 3px; color: #d946ef; text-shadow: 0 0 30px rgba(217,70,239,0.9), 0 0 60px rgba(217,70,239,0.3); line-height: 1; white-space: nowrap; }
 .ep-badge { position: absolute; top: 5px; left: 10px; z-index: 15; font-family: 'Orbitron', sans-serif; font-size: 1.9cqw; font-weight: 700; color: rgba(217,70,239,0.7); letter-spacing: 1px; text-shadow: 0 0 8px rgba(217,70,239,0.45); }
+.fs-ep-badge { position: absolute; top: 24px; left: 24px; font-family: 'Orbitron', sans-serif; font-size: clamp(18px, 2.8vw, 28px); font-weight: 700; color: rgba(217,70,239,0.85); letter-spacing: 3px; z-index: 9999; text-shadow: 0 0 18px rgba(217,70,239,0.7), 0 0 36px rgba(217,70,239,0.3); }
 .fs-intro-team { max-width: min(68vw, 52vh); border-radius: 8px; box-shadow: 0 0 50px rgba(217,70,239,0.55), 0 0 100px rgba(139,92,246,0.2); display: block; }
 
 @media (max-width: 700px) {
