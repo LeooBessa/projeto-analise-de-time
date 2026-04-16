@@ -22,9 +22,68 @@ function onFile(e, slot) {
 
 function g(id) { return document.getElementById(id); }
 
-function parseHighlight(text) {
-  const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return safe.replace(/^(- )(.+?)(:)/gm, '$1<span class="hl">$2</span>$3');
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildCarousel(wrapId, text, cardClass) {
+  const wrap = g(wrapId);
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const lines = (text || '').split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const entries = lines.filter(l => l.startsWith('-'));
+  const source = entries.length ? entries : lines.slice(0, 1);
+
+  if (!source.length) {
+    const card = document.createElement('div');
+    card.className = 'c-card ' + cardClass;
+    card.innerHTML = '<div class="c-reason">—</div>';
+    wrap.appendChild(card);
+    return;
+  }
+
+  source.forEach(line => {
+    const clean = line.replace(/^-\s*/, '');
+    const m = clean.match(/^(.+?):\s*(.+)$/);
+    const card = document.createElement('div');
+    card.className = 'c-card ' + cardClass;
+    if (m) {
+      card.innerHTML =
+        '<span class="c-name">' + escapeHtml(m[1]) + '</span>' +
+        '<span class="c-sep"> — </span>' +
+        '<span class="c-reason">' + escapeHtml(m[2]) + '</span>';
+    } else {
+      card.innerHTML = '<span class="c-reason">' + escapeHtml(clean) + '</span>';
+    }
+    wrap.appendChild(card);
+  });
+}
+
+let _carouselTimers = [];
+
+function clearCarouselTimers() {
+  _carouselTimers.forEach(t => clearTimeout(t));
+  _carouselTimers = [];
+}
+
+function startCarousel(wrapId) {
+  const wrap = g(wrapId);
+  if (!wrap) return;
+  const cards = Array.from(wrap.querySelectorAll('.c-card'));
+  if (!cards.length) return;
+
+  function showCard(i) {
+    if (i > 0 && cards[i - 1]) {
+      cards[i - 1].classList.remove('c-active');
+      cards[i - 1].classList.add('c-exit');
+    }
+    if (i < cards.length) {
+      cards[i].classList.add('c-active');
+      const t = setTimeout(() => showCard(i + 1), 1800);
+      _carouselTimers.push(t);
+    }
+  }
+  showCard(0);
 }
 
 function sP(sfx, t) {
@@ -60,10 +119,15 @@ function aIn(id, d) {
 }
 
 function rAll(sfx) {
+  clearCarouselTimers();
+  ['saidasCard' + sfx, 'chegadasCard' + sfx].forEach(id => {
+    const wrap = g(id);
+    if (wrap) wrap.querySelectorAll('.c-card').forEach(c => c.classList.remove('c-active', 'c-exit'));
+  });
   [
     'anlTag', 'galanTag', 'teamWrap', 'metaBadges',
-    'actSaidas', 'saidasPhotoWrap', 'saidasTitle', 'saidasCard',
-    'actChegadas', 'chegadasPhotoWrap', 'chegadasTitle', 'chegadasCard',
+    'actSaidas', 'saidasPhotoWrap', 'saidasTitle',
+    'actChegadas', 'chegadasPhotoWrap', 'chegadasTitle',
     'actCta', 'cTL', 'cTR', 'cBL', 'cBR'
   ].forEach(id => { const el = g(id + sfx); if (el) el.classList.remove('in'); });
 }
@@ -81,8 +145,8 @@ function prepData(sfx) {
   fBadge.textContent = 'Forragem: ' + FORRAGEM_LABEL[fKey];
   fBadge.className = 'badge ' + FORRAGEM_CLASS[fKey];
 
-  g('saidasText'   + sfx).innerHTML = parseHighlight(g('fSaidas').value   || '—');
-  g('chegadasText' + sfx).innerHTML = parseHighlight(g('fChegadas').value || '—');
+  buildCarousel('saidasCard'   + sfx, g('fSaidas').value   || '', 'c-card-saidas');
+  buildCarousel('chegadasCard' + sfx, g('fChegadas').value || '', 'c-card-chegadas');
 
   const epNum = parseInt((g('fEp') && g('fEp').value.trim()) || '1');
   const epPad = String(epNum).padStart(2, '0');
@@ -105,9 +169,9 @@ function runAnim(sfx) {
   setTimeout(() => {
     mF(sfx, 2, 110, () => {
       aIn('actSaidas'       + sfx, 0);
-      aIn('saidasPhotoWrap' + sfx, 400);
-      aIn('saidasTitle'     + sfx, 950);
-      aIn('saidasCard'      + sfx, 1350);
+      aIn('saidasTitle'     + sfx, 200);
+      aIn('saidasPhotoWrap' + sfx, 650);
+      setTimeout(() => startCarousel('saidasCard' + sfx), 2200);
     });
   }, 5000);
 
@@ -115,9 +179,9 @@ function runAnim(sfx) {
   setTimeout(() => {
     mF(sfx, 2, 110, () => {
       aIn('actChegadas'      + sfx, 0);
-      aIn('chegadasPhotoWrap'+ sfx, 400);
-      aIn('chegadasTitle'    + sfx, 950);
-      aIn('chegadasCard'     + sfx, 1350);
+      aIn('chegadasTitle'    + sfx, 200);
+      aIn('chegadasPhotoWrap'+ sfx, 650);
+      setTimeout(() => startCarousel('chegadasCard' + sfx), 2200);
     });
   }, 11000);
 
