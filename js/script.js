@@ -31,8 +31,7 @@ function buildCarousel(wrapId, text, cardClass) {
   if (!wrap) return;
   wrap.innerHTML = '';
   const lines = (text || '').split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  const entries = lines.filter(l => l.startsWith('-'));
-  const source = entries.length ? entries : lines.slice(0, 1);
+  const source = lines;
 
   if (!source.length) {
     const card = document.createElement('div');
@@ -79,7 +78,7 @@ function startCarousel(wrapId) {
     }
     if (i < cards.length) {
       cards[i].classList.add('c-active');
-      const t = setTimeout(() => showCard(i + 1), 1800);
+      const t = setTimeout(() => showCard(i + 1), 1600);
       _carouselTimers.push(t);
     }
   }
@@ -171,7 +170,7 @@ function runAnim(sfx) {
       aIn('actSaidas'       + sfx, 0);
       aIn('saidasTitle'     + sfx, 200);
       aIn('saidasPhotoWrap' + sfx, 650);
-      setTimeout(() => startCarousel('saidasCard' + sfx), 2200);
+      setTimeout(() => startCarousel('saidasCard' + sfx), 1200);
     });
   }, 5000);
 
@@ -181,7 +180,7 @@ function runAnim(sfx) {
       aIn('actChegadas'      + sfx, 0);
       aIn('chegadasTitle'    + sfx, 200);
       aIn('chegadasPhotoWrap'+ sfx, 650);
-      setTimeout(() => startCarousel('chegadasCard' + sfx), 2200);
+      setTimeout(() => startCarousel('chegadasCard' + sfx), 1200);
     });
   }, 11000);
 
