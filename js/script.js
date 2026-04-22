@@ -260,11 +260,11 @@ function openFullscreen() {
   const epBadge = g('epIntroBadge');
   const sticker = g('stickerWrap');
   setTimeout(() => { intro.classList.add('in'); if (epBadge) epBadge.classList.add('in'); if (sticker) sticker.classList.add('in'); }, 50);
-  setTimeout(() => { intro.classList.remove('in'); if (epBadge) epBadge.classList.remove('in'); if (sticker) sticker.classList.remove('in'); }, 2000);
+  setTimeout(() => { intro.classList.remove('in'); if (epBadge) epBadge.classList.remove('in'); if (sticker) sticker.classList.remove('in'); }, 1200);
   setTimeout(() => {
     const td = runAnim('FS');
     _fsCloseTimer = setTimeout(() => { g('fsClose').style.display = 'block'; }, td + 200);
-  }, 2500);
+  }, 1600);
 }
 
 function closeFullscreen() {
