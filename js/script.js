@@ -78,7 +78,7 @@ function startCarousel(wrapId) {
     }
     if (i < cards.length) {
       cards[i].classList.add('c-active');
-      const t = setTimeout(() => showCard(i + 1), 1600);
+      const t = setTimeout(() => showCard(i + 1), 1500);
       _carouselTimers.push(t);
     }
   }
@@ -117,6 +117,11 @@ function aIn(id, d) {
   setTimeout(() => { const el = g(id); if (el) el.classList.add('in'); }, d);
 }
 
+function cardCount(wrapId) {
+  const wrap = g(wrapId);
+  return wrap ? Math.max(1, wrap.querySelectorAll('.c-card').length) : 1;
+}
+
 function rAll(sfx) {
   clearCarouselTimers();
   ['saidasCard' + sfx, 'chegadasCard' + sfx].forEach(id => {
@@ -124,7 +129,7 @@ function rAll(sfx) {
     if (wrap) wrap.querySelectorAll('.c-card').forEach(c => c.classList.remove('c-active', 'c-exit'));
   });
   [
-    'anlTag', 'galanTag', 'teamWrap', 'metaBadges',
+    'anlTag', 'galanTag', 'teamWrap', 'metaBadges', 'stickerWrap',
     'actSaidas', 'saidasPhotoWrap', 'saidasTitle',
     'actChegadas', 'chegadasPhotoWrap', 'chegadasTitle',
     'actCta', 'cTL', 'cTR', 'cBL', 'cBR'
@@ -147,6 +152,12 @@ function prepData(sfx) {
   buildCarousel('saidasCard'   + sfx, g('fSaidas').value   || '', 'c-card-saidas');
   buildCarousel('chegadasCard' + sfx, g('fChegadas').value || '', 'c-card-chegadas');
 
+  const tema = g('fTema') ? g('fTema').value.trim() : '';
+  const stickerText = g('stickerText' + sfx);
+  const stickerWrap = g('stickerWrap' + sfx);
+  if (stickerText) stickerText.textContent = tema;
+  if (stickerWrap) stickerWrap.style.display = tema ? '' : 'none';
+
   const epNum = parseInt((g('fEp') && g('fEp').value.trim()) || '1');
   const epPad = String(epNum).padStart(2, '0');
   const epBadge = g('epIntroBadge');
@@ -154,17 +165,32 @@ function prepData(sfx) {
 }
 
 function runAnim(sfx) {
-  const TD = 22000;
+  const CARD_DUR = 1500;
+  const OVERHEAD = 1700; // flash(380) + carousel delay(1200) + buffer(120)
+  const MIN_SCR  = 4500;
+
+  const nS = cardCount('saidasCard'   + sfx);
+  const nC = cardCount('chegadasCard' + sfx);
+  const durS = Math.max(MIN_SCR, OVERHEAD + nS * CARD_DUR);
+  const durC = Math.max(MIN_SCR, OVERHEAD + nC * CARD_DUR);
+
+  const T1 = 5000;
+  const T2 = T1 + durS;
+  const T3 = T2 + durC;
+  const TD = T3 + 5000;
+
   sP(sfx, TD);
   flash(sfx);
 
   // Tela 1 — Time Original
-  aIn('anlTag'     + sfx, 200);
-  aIn('galanTag'   + sfx, 200);
-  aIn('teamWrap'   + sfx, 650);
-  aIn('metaBadges' + sfx, 2200);
+  aIn('anlTag'      + sfx, 200);
+  aIn('galanTag'    + sfx, 200);
+  aIn('teamWrap'    + sfx, 650);
+  aIn('metaBadges'  + sfx, 2200);
+  const tema = g('fTema') ? g('fTema').value.trim() : '';
+  if (tema) aIn('stickerWrap' + sfx, 3000);
 
-  // Tela 2 — Saídas (5s)
+  // Tela 2 — Saídas
   setTimeout(() => {
     mF(sfx, 2, 110, () => {
       aIn('actSaidas'       + sfx, 0);
@@ -172,9 +198,9 @@ function runAnim(sfx) {
       aIn('saidasPhotoWrap' + sfx, 650);
       setTimeout(() => startCarousel('saidasCard' + sfx), 1200);
     });
-  }, 5000);
+  }, T1);
 
-  // Tela 3 — Chegadas (11s)
+  // Tela 3 — Chegadas
   setTimeout(() => {
     mF(sfx, 2, 110, () => {
       aIn('actChegadas'      + sfx, 0);
@@ -182,9 +208,9 @@ function runAnim(sfx) {
       aIn('chegadasPhotoWrap'+ sfx, 650);
       setTimeout(() => startCarousel('chegadasCard' + sfx), 1200);
     });
-  }, 11000);
+  }, T2);
 
-  // Tela 4 — CTA (17s)
+  // Tela 4 — CTA
   setTimeout(() => {
     mF(sfx, 3, 110, () => {
       aIn('actCta'    + sfx, 0);
@@ -193,7 +219,9 @@ function runAnim(sfx) {
       aIn('cBL' + sfx, 320);
       aIn('cBR' + sfx, 380);
     });
-  }, 17000);
+  }, T3);
+
+  return TD;
 }
 
 function playAnimation() {
@@ -234,9 +262,10 @@ function openFullscreen() {
   const epBadge = g('epIntroBadge');
   setTimeout(() => { intro.classList.add('in'); if (epBadge) epBadge.classList.add('in'); }, 50);
   setTimeout(() => { intro.classList.remove('in'); if (epBadge) epBadge.classList.remove('in'); }, 2000);
-  setTimeout(() => runAnim('FS'), 2500);
-
-  _fsCloseTimer = setTimeout(() => { g('fsClose').style.display = 'block'; }, 25200);
+  setTimeout(() => {
+    const td = runAnim('FS');
+    _fsCloseTimer = setTimeout(() => { g('fsClose').style.display = 'block'; }, td + 200);
+  }, 2500);
 }
 
 function closeFullscreen() {
