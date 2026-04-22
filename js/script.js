@@ -129,7 +129,7 @@ function rAll(sfx) {
     if (wrap) wrap.querySelectorAll('.c-card').forEach(c => c.classList.remove('c-active', 'c-exit'));
   });
   [
-    'anlTag', 'galanTag', 'teamWrap', 'metaBadges', 'stickerWrap',
+    'anlTag', 'galanTag', 'teamWrap', 'metaBadges',
     'actSaidas', 'saidasPhotoWrap', 'saidasTitle',
     'actChegadas', 'chegadasPhotoWrap', 'chegadasTitle',
     'actCta', 'cTL', 'cTR', 'cBL', 'cBR'
@@ -153,8 +153,8 @@ function prepData(sfx) {
   buildCarousel('chegadasCard' + sfx, g('fChegadas').value || '', 'c-card-chegadas');
 
   const tema = g('fTema') ? g('fTema').value.trim() : '';
-  const stickerText = g('stickerText' + sfx);
-  const stickerWrap = g('stickerWrap' + sfx);
+  const stickerText = g('stickerText');
+  const stickerWrap = g('stickerWrap');
   if (stickerText) stickerText.textContent = tema;
   if (stickerWrap) stickerWrap.style.display = tema ? '' : 'none';
 
@@ -187,8 +187,6 @@ function runAnim(sfx) {
   aIn('galanTag'    + sfx, 200);
   aIn('teamWrap'    + sfx, 650);
   aIn('metaBadges'  + sfx, 2200);
-  const tema = g('fTema') ? g('fTema').value.trim() : '';
-  if (tema) aIn('stickerWrap' + sfx, 3000);
 
   // Tela 2 — Saídas
   setTimeout(() => {
@@ -260,8 +258,9 @@ function openFullscreen() {
 
   const intro = g('fsIntro');
   const epBadge = g('epIntroBadge');
-  setTimeout(() => { intro.classList.add('in'); if (epBadge) epBadge.classList.add('in'); }, 50);
-  setTimeout(() => { intro.classList.remove('in'); if (epBadge) epBadge.classList.remove('in'); }, 2000);
+  const sticker = g('stickerWrap');
+  setTimeout(() => { intro.classList.add('in'); if (epBadge) epBadge.classList.add('in'); if (sticker) sticker.classList.add('in'); }, 50);
+  setTimeout(() => { intro.classList.remove('in'); if (epBadge) epBadge.classList.remove('in'); if (sticker) sticker.classList.remove('in'); }, 2000);
   setTimeout(() => {
     const td = runAnim('FS');
     _fsCloseTimer = setTimeout(() => { g('fsClose').style.display = 'block'; }, td + 200);
