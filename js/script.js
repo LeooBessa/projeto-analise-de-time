@@ -174,7 +174,7 @@ function runAnim(sfx) {
   const durS = Math.max(MIN_SCR, OVERHEAD + nS * CARD_DUR);
   const durC = Math.max(MIN_SCR, OVERHEAD + nC * CARD_DUR);
 
-  const T1 = 5000;
+  const T1 = 3000;
   const T2 = T1 + durS;
   const T3 = T2 + durC;
   const TD = T3 + 5000;
