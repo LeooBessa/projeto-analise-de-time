@@ -92,6 +92,7 @@ function sP(sfx, t) {
 
 function flash(sfx, cb) {
   const f = g('flash' + sfx);
+  if (!f) { if (cb) setTimeout(cb, 380); return; }
   f.classList.remove('scanning');
   void f.offsetHeight;
   f.classList.add('scanning');
@@ -122,15 +123,20 @@ function rAll(sfx) {
 }
 
 function prepData(sfx) {
-  if (imgs.orig) { g('teamImgOrig' + sfx).src = imgs.orig; }
+  const imgOrig = g('teamImgOrig' + sfx);
+  if (imgOrig && imgs.orig) imgOrig.src = imgs.orig;
 
-  const coinsVal = g('fCoins').value.trim() || '—';
-  g('badgeCoins' + sfx).textContent = '💰 ' + coinsVal;
+  const coinsEl   = g('fCoins');
+  const badgeCoin = g('badgeCoins' + sfx);
+  if (badgeCoin) badgeCoin.textContent = '💰 ' + (coinsEl ? coinsEl.value.trim() || '—' : '—');
 
-  const fKey = g('fForragem').value;
+  const fForragemEl = g('fForragem');
   const fBadge = g('badgeForragem' + sfx);
-  fBadge.textContent = 'Forragem: ' + FORRAGEM_LABEL[fKey];
-  fBadge.className = 'badge ' + FORRAGEM_CLASS[fKey];
+  if (fBadge && fForragemEl) {
+    const fKey = fForragemEl.value;
+    fBadge.textContent = 'Forragem: ' + FORRAGEM_LABEL[fKey];
+    fBadge.className = 'badge ' + FORRAGEM_CLASS[fKey];
+  }
 
   const tema = g('fTema') ? g('fTema').value.trim() : '';
   const stickerText = g('stickerText');
