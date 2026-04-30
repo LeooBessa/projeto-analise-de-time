@@ -90,6 +90,17 @@ textarea { resize: vertical; line-height: 1.55; }
 .alt-phrase-overlay { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); z-index: 10; text-align: center; pointer-events: none; }
 .alt-phrase-text { display: inline-block; font-family: 'Syne', sans-serif; font-size: 4cqw; font-weight: 800; color: #d946ef; text-transform: uppercase; letter-spacing: 1px; padding: 3px 12px; text-shadow: 0 0 16px rgba(217,70,239,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; background: rgba(0,0,0,0.55); border-radius: 3px; }
 
+/* Label SAÍDAS / CHEGADAS — fase antes dos jogadores */
+.alt-section-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Syne', sans-serif; font-size: 13cqw; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; opacity: 0; transition: opacity 0.35s; pointer-events: none; z-index: 5; text-align: center; width: 90%; }
+.alt-top .alt-section-label { color: #fca5a5; text-shadow: 0 0 30px rgba(252,165,165,0.6); }
+.alt-bottom .alt-section-label { color: #86efac; text-shadow: 0 0 30px rgba(134,239,172,0.6); }
+
+/* Fase de label: mostra labels, esconde conteúdo do jogador */
+.act-alteration.label-phase .alt-section-label { opacity: 1; }
+.act-alteration.label-phase .alt-player-img,
+.act-alteration.label-phase .alt-lbl-badge,
+.act-alteration.label-phase .alt-player-name { opacity: 0; transition: opacity 0.3s; }
+
 /* ===== FORM — ALT CARDS ===== */
 .alt-card { border: 0.5px solid rgba(217,70,239,0.2); border-radius: 6px; padding: 10px; background: rgba(217,70,239,0.03); display: flex; flex-direction: column; gap: 7px; }
 .alt-card-header { border-bottom: 0.5px solid rgba(217,70,239,0.12); padding-bottom: 5px; }
@@ -159,21 +170,27 @@ textarea { resize: vertical; line-height: 1.55; }
 .fs-overlay.open { display: flex; }
 .fs-close { position: fixed; top: 16px; right: 16px; z-index: 10000; background: rgba(217,70,239,0.15); border: 1px solid rgba(217,70,239,0.55); border-radius: 4px; color: #f5f0ff; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; padding: 8px 16px; user-select: none; display: none; }
 .fs-scene-wrap { aspect-ratio: 9/16; position: relative; container-type: inline-size; }
-.ep-intro-badge { font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px; display: flex; align-items: baseline; gap: 6px; border-bottom: 1px solid rgba(217,70,239,0.45); padding-bottom: 6px; opacity: 0; transform: translateY(-8px); transition: opacity 0.45s 0.15s, transform 0.45s 0.15s ease-out; }
-.ep-intro-badge.in { opacity: 1; transform: translateY(0); }
-.ep-label { font-size: clamp(9px, 1.8vw, 13px); color: rgba(217,70,239,0.7); letter-spacing: 4px; }
-.ep-num { font-size: clamp(22px, 5vw, 40px); color: #ffffff; letter-spacing: 1px; text-shadow: 0 0 20px rgba(255,255,255,0.6), 0 0 40px rgba(217,70,239,0.5); }
-.ep-arrow { font-size: clamp(11px, 2.2vw, 18px); color: rgba(217,70,239,0.9); text-shadow: 0 0 12px rgba(217,70,239,0.8); }
-.fs-intro { position: fixed; inset: 0; z-index: 9998; display: flex; align-items: center; justify-content: center; background: #08050f; opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+
+/* Intro dentro do canvas 9:16 para % bater com safe zones do TikTok */
+.fs-intro { position: absolute; inset: 0; z-index: 200; background: #08050f; opacity: 0; pointer-events: none; transition: opacity 0.5s; }
 .fs-intro.in { opacity: 1; pointer-events: auto; }
-.fs-intro-content { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.fs-intro-label { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 6px; color: rgba(217,70,239,0.5); text-transform: uppercase; }
-.fs-intro-title { font-family: 'Syne', sans-serif; font-size: clamp(11px, 2.4vw, 20px); font-weight: 800; letter-spacing: 3px; color: #d946ef; text-shadow: 0 0 30px rgba(217,70,239,0.9), 0 0 60px rgba(217,70,239,0.3); line-height: 1; white-space: nowrap; }
+
+/* EP badge: canto superior esquerdo dentro da safe zone (12% topo) */
+.ep-intro-badge { position: absolute; top: 14%; left: 5%; z-index: 5; font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px; display: flex; align-items: baseline; gap: 4px; border-bottom: 1px solid rgba(217,70,239,0.45); padding-bottom: 4px; opacity: 0; transform: translateX(-14px); transition: opacity 0.45s 0.15s, transform 0.45s 0.15s ease-out; }
+.ep-intro-badge.in { opacity: 1; transform: translateX(0); }
+.ep-label { font-size: 2.5cqw; color: rgba(217,70,239,0.7); letter-spacing: 4px; }
+.ep-num { font-size: 8cqw; color: #ffffff; letter-spacing: 1px; text-shadow: 0 0 20px rgba(255,255,255,0.6), 0 0 40px rgba(217,70,239,0.5); }
+.ep-arrow { font-size: 3cqw; color: rgba(217,70,239,0.9); text-shadow: 0 0 12px rgba(217,70,239,0.8); }
+
+/* Conteúdo centralizado entre as safe zones (12% topo, 22% base) */
+.fs-intro-content { position: absolute; top: 12%; bottom: 22%; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.fs-intro-label { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2.8cqw; font-weight: 600; letter-spacing: 6px; color: rgba(217,70,239,0.5); text-transform: uppercase; }
+.fs-intro-title { font-family: 'Syne', sans-serif; font-size: 5.5cqw; font-weight: 800; letter-spacing: 3px; color: #d946ef; text-shadow: 0 0 30px rgba(217,70,239,0.9), 0 0 60px rgba(217,70,239,0.3); line-height: 1; white-space: nowrap; }
 .ep-scene-badge { position: absolute; top: 4%; left: 3.5%; z-index: 15; font-family: 'Orbitron', sans-serif; font-size: 3.2cqw; font-weight: 700; color: rgba(217,70,239,0.88); letter-spacing: 2px; text-shadow: 0 0 14px rgba(217,70,239,0.7), 0 0 28px rgba(217,70,239,0.3); opacity: 0; transform: translateX(-10px); transition: opacity 0.45s, transform 0.45s ease-out; }
 .ep-scene-badge.in { opacity: 1; transform: translateX(0); }
-.fs-intro-team { max-width: min(52vw, 36vh); border-radius: 8px; box-shadow: 0 0 40px rgba(217,70,239,0.5), 0 0 80px rgba(139,92,246,0.15); display: block; }
+.fs-intro-team { width: 78%; border-radius: 8px; box-shadow: 0 0 40px rgba(217,70,239,0.5), 0 0 80px rgba(139,92,246,0.15); display: block; }
 .fs-intro-meta { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-.intro-badge-item { background: rgba(8,5,15,0.92); border: 1px solid rgba(139,92,246,0.45); border-radius: 4px; padding: 5px 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(10px, 1.8vw, 14px); font-weight: 700; color: #ede9fe; opacity: 0; transform: translateY(6px); transition: opacity 0.4s 0.3s, transform 0.4s 0.3s ease-out; white-space: nowrap; }
+.intro-badge-item { background: rgba(8,5,15,0.92); border: 1px solid rgba(139,92,246,0.45); border-radius: 4px; padding: 5px 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 3.8cqw; font-weight: 700; color: #ede9fe; opacity: 0; transform: translateY(6px); transition: opacity 0.4s 0.3s, transform 0.4s 0.3s ease-out; white-space: nowrap; }
 .intro-badge-item.in { opacity: 1; transform: translateY(0); }
 
 @media (max-width: 700px) {

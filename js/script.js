@@ -100,7 +100,7 @@ function rAll(sfx) {
   const img = g('teamImgOrig' + sfx);
   if (img && imgs.orig) img.src = imgs.orig;
   ['anlTag', 'teamWrap', 'actAlt', 'actCta', 'cTL', 'cTR', 'cBL', 'cBR']
-    .forEach(id => { const el = g(id + sfx); if (el) el.classList.remove('in'); });
+    .forEach(id => { const el = g(id + sfx); if (el) { el.classList.remove('in'); el.classList.remove('label-phase'); } });
 }
 
 function prepData(sfx) {
@@ -136,18 +136,50 @@ function prepIntro() {
 function runAnim(sfx) {
   const alts = getAlts();
 
-  const ALT_DUR = 3500;
-  const CTA_DUR = 5000;
+  const ALT_DUR  = 3500;
+  const CTA_DUR  = 5000;
+  const LABEL_DUR = 1200;
 
-  const T_FIRST_ALT = 300;
-  const T_CTA       = T_FIRST_ALT + alts.length * ALT_DUR + (alts.length > 0 ? 800 : 300);
-  const TD          = T_CTA + CTA_DUR;
+  const T_LABEL   = 300;
+  const T_CONTENT = T_LABEL + (alts.length > 0 ? LABEL_DUR : 0);
+  const T_CTA     = T_CONTENT + alts.length * ALT_DUR + (alts.length > 0 ? 800 : 300);
+  const TD        = T_CTA + CTA_DUR;
 
   sP(sfx, TD);
   flash(sfx);
 
+  if (alts.length > 0) {
+    // Fase de label: SAÍDAS / CHEGADAS em destaque
+    const tLabelIn = setTimeout(() => {
+      const el = g('actAlt' + sfx);
+      if (el) { el.classList.remove('in'); el.classList.add('label-phase'); void el.offsetHeight; }
+      flash(sfx, () => {
+        const el2 = g('actAlt' + sfx);
+        if (el2) el2.classList.add('in');
+      });
+    }, T_LABEL);
+    _animTimers.push(tLabelIn);
+
+    // Transição para primeira alteração
+    const tLabelOut = setTimeout(() => {
+      setAltContent(sfx, alts[0]);
+      const el = g('actAlt' + sfx);
+      if (el) el.classList.remove('label-phase');
+    }, T_CONTENT);
+    _animTimers.push(tLabelOut);
+
+    // Fim da primeira alteração
+    const tAlt0End = setTimeout(() => {
+      const el = g('actAlt' + sfx);
+      if (el) el.classList.remove('in');
+    }, T_CONTENT + ALT_DUR - 400);
+    _animTimers.push(tAlt0End);
+  }
+
+  // Alterações a partir da segunda
   alts.forEach((alt, i) => {
-    const tStart = T_FIRST_ALT + i * ALT_DUR;
+    if (i === 0) return;
+    const tStart = T_CONTENT + i * ALT_DUR;
     const tEnd   = tStart + ALT_DUR - 400;
 
     const tS = setTimeout(() => {

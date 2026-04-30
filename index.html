@@ -229,11 +229,13 @@
         <!-- Tela 2: Alteração split-screen -->
         <div class="act-screen act-alteration" id="actAlt">
           <div class="alt-top">
+            <div class="alt-section-label">SAÍDAS</div>
             <img class="alt-player-img" id="altImgSaida" src="" alt="" />
             <div class="alt-lbl-badge alt-lbl-saida">❌ SAIU</div>
             <div class="alt-player-name" id="altNameSaida"></div>
           </div>
           <div class="alt-bottom">
+            <div class="alt-section-label">CHEGADAS</div>
             <img class="alt-player-img" id="altImgChegada" src="" alt="" />
             <div class="alt-lbl-badge alt-lbl-chegada">✅ CHEGOU</div>
             <div class="alt-player-name" id="altNameChegada"></div>
@@ -271,21 +273,24 @@
 
 <!-- ===== FULLSCREEN OVERLAY ===== -->
 <div class="fs-overlay" id="fsOverlay">
-  <div class="fs-intro" id="fsIntro">
-    <div class="fs-intro-content">
-      <div class="ep-intro-badge" id="epIntroBadge"></div>
-      <div class="sticker-wrap" id="stickerWrap"><div class="sticker-text" id="stickerText"></div></div>
-      <div class="fs-intro-label">Galandinho</div>
-      <div class="fs-intro-title">ANÁLISE DE TIMES</div>
-      <div class="fs-intro-meta">
-        <div class="intro-badge-item" id="introCoinsBadge">💰 —</div>
-        <div class="intro-badge-item" id="introForragemBadge">Forragem: —</div>
-      </div>
-      <img class="fs-intro-team" id="introTeamImg" src="" alt="" />
-    </div>
-  </div>
   <div class="fs-close" id="fsClose" onclick="closeFullscreen()">✕ Fechar</div>
   <div class="fs-scene-wrap" id="fsSceneWrap">
+
+    <!-- Intro inside the 9:16 canvas so % values respect TikTok safe zones -->
+    <div class="fs-intro" id="fsIntro">
+      <div class="ep-intro-badge" id="epIntroBadge"></div>
+      <div class="fs-intro-content">
+        <div class="sticker-wrap" id="stickerWrap"><div class="sticker-text" id="stickerText"></div></div>
+        <div class="fs-intro-label">Galandinho</div>
+        <div class="fs-intro-title">ANÁLISE DE TIMES</div>
+        <img class="fs-intro-team" id="introTeamImg" src="" alt="" />
+        <div class="fs-intro-meta">
+          <div class="intro-badge-item" id="introCoinsBadge">💰 —</div>
+          <div class="intro-badge-item" id="introForragemBadge">Forragem: —</div>
+        </div>
+      </div>
+    </div>
+
     <div class="scene-preview" id="sceneFS" style="border-radius:0;width:100%;height:100%">
 
       <!-- Background SVG FS -->
@@ -326,11 +331,13 @@
       <!-- Tela 2 FS: Alteração split-screen -->
       <div class="act-screen act-alteration" id="actAltFS">
         <div class="alt-top">
+          <div class="alt-section-label">SAÍDAS</div>
           <img class="alt-player-img" id="altImgSaidaFS" src="" alt="" />
           <div class="alt-lbl-badge alt-lbl-saida">❌ SAIU</div>
           <div class="alt-player-name" id="altNameSaidaFS"></div>
         </div>
         <div class="alt-bottom">
+          <div class="alt-section-label">CHEGADAS</div>
           <img class="alt-player-img" id="altImgChegadaFS" src="" alt="" />
           <div class="alt-lbl-badge alt-lbl-chegada">✅ CHEGOU</div>
           <div class="alt-player-name" id="altNameChegadaFS"></div>
