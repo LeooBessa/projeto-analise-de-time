@@ -99,13 +99,15 @@ function rAll(sfx) {
   clearAnimTimers();
   const img = g('teamImgOrig' + sfx);
   if (img && imgs.orig) img.src = imgs.orig;
-  ['anlTag', 'teamWrap', 'actAlt', 'actCta', 'cTL', 'cTR', 'cBL', 'cBR']
+  ['anlTag', 'teamWrap', 'actAlt', 'actFinal', 'actCta', 'cTL', 'cTR', 'cBL', 'cBR']
     .forEach(id => { const el = g(id + sfx); if (el) { el.classList.remove('in'); el.classList.remove('label-phase'); } });
 }
 
 function prepData(sfx) {
   const imgOrig = g('teamImgOrig' + sfx);
   if (imgOrig && imgs.orig) imgOrig.src = imgs.orig;
+  const imgFinal = g('finalTeamImg' + sfx);
+  if (imgFinal && imgs.final) imgFinal.src = imgs.final;
 }
 
 function prepIntro() {
@@ -136,13 +138,15 @@ function prepIntro() {
 function runAnim(sfx) {
   const alts = getAlts();
 
-  const ALT_DUR  = 3500;
-  const CTA_DUR  = 5000;
+  const ALT_DUR   = 3500;
+  const FINAL_DUR = 3000;
+  const CTA_DUR   = 5000;
   const LABEL_DUR = 1200;
 
   const T_LABEL   = 300;
   const T_CONTENT = T_LABEL + (alts.length > 0 ? LABEL_DUR : 0);
-  const T_CTA     = T_CONTENT + alts.length * ALT_DUR + (alts.length > 0 ? 800 : 300);
+  const T_FINAL   = T_CONTENT + alts.length * ALT_DUR + (alts.length > 0 ? 800 : 300);
+  const T_CTA     = T_FINAL + FINAL_DUR;
   const TD        = T_CTA + CTA_DUR;
 
   sP(sfx, TD);
@@ -200,7 +204,13 @@ function runAnim(sfx) {
     _animTimers.push(tE);
   });
 
+  const tFinal = setTimeout(() => {
+    flash(sfx, () => { aIn('actFinal' + sfx, 0); });
+  }, T_FINAL);
+  _animTimers.push(tFinal);
+
   const tCta = setTimeout(() => {
+    const elF = g('actFinal' + sfx); if (elF) elF.classList.remove('in');
     flash(sfx, () => {
       aIn('actCta' + sfx, 0);
       aIn('cTL'    + sfx, 200);
