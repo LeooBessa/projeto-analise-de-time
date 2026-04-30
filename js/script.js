@@ -99,24 +99,26 @@ function rAll(sfx) {
   clearAnimTimers();
   const img = g('teamImgOrig' + sfx);
   if (img && imgs.orig) img.src = imgs.orig;
-  ['anlTag', 'teamWrap', 'metaBadges', 'actAlt', 'actFinal', 'actCta', 'cTL', 'cTR', 'cBL', 'cBR']
+  ['anlTag', 'teamWrap', 'actAlt', 'actCta', 'cTL', 'cTR', 'cBL', 'cBR']
     .forEach(id => { const el = g(id + sfx); if (el) el.classList.remove('in'); });
 }
 
 function prepData(sfx) {
   const imgOrig = g('teamImgOrig' + sfx);
   if (imgOrig && imgs.orig) imgOrig.src = imgs.orig;
+}
 
-  const coinsEl   = g('fCoins');
-  const badgeCoin = g('badgeCoins' + sfx);
-  if (badgeCoin) badgeCoin.textContent = '💰 ' + (coinsEl ? coinsEl.value.trim() || '—' : '—');
+function prepIntro() {
+  const coinsEl = g('fCoins');
+  const cBadge  = g('introCoinsBadge');
+  if (cBadge) cBadge.textContent = '💰 ' + (coinsEl ? coinsEl.value.trim() || '—' : '—');
 
   const fForragemEl = g('fForragem');
-  const fBadge      = g('badgeForragem' + sfx);
+  const fBadge      = g('introForragemBadge');
   if (fBadge && fForragemEl) {
     const fKey = fForragemEl.value;
     fBadge.textContent = 'Forragem: ' + FORRAGEM_LABEL[fKey];
-    fBadge.className   = 'badge ' + FORRAGEM_CLASS[fKey];
+    fBadge.className = 'intro-badge-item ' + FORRAGEM_CLASS[fKey];
   }
 
   const tema        = g('fTema') ? g('fTema').value.trim() : '';
@@ -134,28 +136,21 @@ function prepData(sfx) {
 function runAnim(sfx) {
   const alts = getAlts();
 
-  const INTRO_DUR = 2000;
-  const ALT_DUR   = 3500;
-  const FINAL_DUR = 2800;
-  const CTA_DUR   = 5000;
+  const INTRO_DUR  = 1500;
+  const ALT_DUR    = 3500;
+  const FINAL_WAIT = 2500;
+  const CTA_DUR    = 5000;
 
-  const T_ALT_START = INTRO_DUR;
-  const T_FINAL     = T_ALT_START + alts.length * ALT_DUR + (alts.length > 0 ? 400 : 200);
-  const T_CTA       = T_FINAL     + FINAL_DUR;
-  const TD          = T_CTA       + CTA_DUR;
+  const T_ALT_START  = INTRO_DUR;
+  const T_FINAL_SHOW = T_ALT_START + alts.length * ALT_DUR + (alts.length > 0 ? 400 : 0);
+  const T_CTA        = T_FINAL_SHOW + FINAL_WAIT;
+  const TD           = T_CTA + CTA_DUR;
 
   sP(sfx, TD);
   flash(sfx);
 
-  aIn('anlTag'     + sfx, 200);
-  aIn('teamWrap'   + sfx, 650);
-  aIn('metaBadges' + sfx, 1200);
-
-  const tHideBadges = setTimeout(() => {
-    const mb = g('metaBadges' + sfx);
-    if (mb) mb.classList.remove('in');
-  }, T_ALT_START - 400);
-  _animTimers.push(tHideBadges);
+  aIn('anlTag'   + sfx, 200);
+  aIn('teamWrap' + sfx, 600);
 
   alts.forEach((alt, i) => {
     const tStart = T_ALT_START + i * ALT_DUR;
@@ -179,19 +174,16 @@ function runAnim(sfx) {
     _animTimers.push(tE);
   });
 
+  // Após as alterações: flash e troca foto para o time final
   const tFinal = setTimeout(() => {
-    const finalImg = g('actFinalImg' + sfx);
-    if (finalImg && imgs.final) finalImg.src = imgs.final;
-    flash(sfx, () => {
-      const el = g('actFinal' + sfx);
-      if (el) el.classList.add('in');
-    });
-  }, T_FINAL);
+    const imgEl = g('teamImgOrig' + sfx);
+    if (imgEl && imgs.final) imgEl.src = imgs.final;
+    flash(sfx);
+  }, T_FINAL_SHOW);
   _animTimers.push(tFinal);
 
+  // CTA
   const tCta = setTimeout(() => {
-    const el = g('actFinal' + sfx);
-    if (el) el.classList.remove('in');
     flash(sfx, () => {
       aIn('actCta' + sfx, 0);
       aIn('cTL'    + sfx, 200);
@@ -222,6 +214,7 @@ let _fsCloseTimer = null;
 function openFullscreen() {
   rAll('FS');
   prepData('FS');
+  prepIntro();
 
   if (_fsCloseTimer) clearTimeout(_fsCloseTimer);
   const fsClose = g('fsClose');
@@ -244,15 +237,22 @@ function openFullscreen() {
   const intro   = g('fsIntro');
   const epBadge = g('epIntroBadge');
   const sticker = g('stickerWrap');
+  const cBadge  = g('introCoinsBadge');
+  const fBadge  = g('introForragemBadge');
+
   setTimeout(() => {
     if (intro)   intro.classList.add('in');
     if (epBadge) epBadge.classList.add('in');
     if (sticker) sticker.classList.add('in');
+    if (cBadge)  cBadge.classList.add('in');
+    if (fBadge)  fBadge.classList.add('in');
   }, 50);
   setTimeout(() => {
     if (intro)   intro.classList.remove('in');
     if (epBadge) epBadge.classList.remove('in');
     if (sticker) sticker.classList.remove('in');
+    if (cBadge)  cBadge.classList.remove('in');
+    if (fBadge)  fBadge.classList.remove('in');
   }, 1200);
   setTimeout(() => {
     const td = runAnim('FS');
