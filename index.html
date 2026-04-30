@@ -25,24 +25,16 @@
         <img class="upload-preview" id="uploadPrev1" alt="" />
       </div>
 
-      <div class="sec">Time Sem Saídas</div>
-      <div class="upload-zone">
-        <input type="file" accept="image/*" onchange="onFile(event,'saidas')" />
-        <div class="upload-text">Time sem os jogadores retirados</div>
-        <div class="upload-name" id="uploadName2"></div>
-        <img class="upload-preview" id="uploadPrev2" alt="" />
-      </div>
-
-      <div class="sec">Time Analisado</div>
+      <div class="sec">Time Final</div>
       <div class="upload-zone">
         <input type="file" accept="image/*" onchange="onFile(event,'final')" />
         <div class="upload-text">Time após análise completa</div>
-        <div class="upload-name" id="uploadName3"></div>
-        <img class="upload-preview" id="uploadPrev3" alt="" />
+        <div class="upload-name" id="uploadName2"></div>
+        <img class="upload-preview" id="uploadPrev2" alt="" />
       </div>
     </div>
 
-    <!-- COLUNA 2: Dados + Textos -->
+    <!-- COLUNA 2: Dados + Alterações -->
     <div class="form-col">
       <div class="sec">Episódio</div>
       <div class="fg">
@@ -75,18 +67,123 @@
       </div>
 
       <div class="divider"></div>
-      <div class="sec">Por que tirei</div>
-      <div class="fg">
-        <div class="fl">Texto da Tela 2 — explique as saídas</div>
-        <textarea id="fSaidas" rows="8" placeholder="Ex:&#10;- Mbappé: não se encaixa no Meta do jogo&#10;- Neymar: custo muito alto"></textarea>
+      <div class="sec">Alterações (preencha as que fizer)</div>
+
+      <!-- Alteração 1 -->
+      <div class="alt-card">
+        <div class="alt-card-header"><span class="alt-card-num">Alteração 1</span></div>
+        <div class="alt-side-lbl">❌ Saiu</div>
+        <div class="fg"><input id="altSaidaName1" placeholder="Nome do jogador" /></div>
+        <div class="upload-zone upload-zone-sm">
+          <input type="file" accept="image/*" onchange="onFile(event,'alt',0,'saida')" />
+          <div class="upload-text">Foto do card (opcional)</div>
+          <img class="upload-preview" id="altPrev_0_saida" alt="" />
+        </div>
+        <div class="alt-side-lbl alt-side-lbl-chegada">✅ Chegou</div>
+        <div class="fg"><input id="altChegadaName1" placeholder="Nome do jogador" /></div>
+        <div class="upload-zone upload-zone-sm">
+          <input type="file" accept="image/*" onchange="onFile(event,'alt',0,'chegada')" />
+          <div class="upload-text">Foto do card (opcional)</div>
+          <img class="upload-preview" id="altPrev_0_chegada" alt="" />
+        </div>
+        <div class="fg">
+          <div class="fl">Frase do meio (opcional)</div>
+          <input id="altPhrase1" placeholder="ex: UPGRADE NECESSÁRIO" />
+        </div>
       </div>
 
-      <div class="divider"></div>
-      <div class="sec">Quem trouxe</div>
-      <div class="fg">
-        <div class="fl">Texto da Tela 3 — explique as chegadas</div>
-        <textarea id="fChegadas" rows="8" placeholder="Ex:&#10;- Vini Jr: ocupa o lado esquerdo, pique e finta&#10;- Rodrygo: mobilidade no ataque"></textarea>
+      <!-- Alteração 2 -->
+      <div class="alt-card">
+        <div class="alt-card-header"><span class="alt-card-num">Alteração 2</span></div>
+        <div class="alt-side-lbl">❌ Saiu</div>
+        <div class="fg"><input id="altSaidaName2" placeholder="Nome do jogador" /></div>
+        <div class="upload-zone upload-zone-sm">
+          <input type="file" accept="image/*" onchange="onFile(event,'alt',1,'saida')" />
+          <div class="upload-text">Foto do card (opcional)</div>
+          <img class="upload-preview" id="altPrev_1_saida" alt="" />
+        </div>
+        <div class="alt-side-lbl alt-side-lbl-chegada">✅ Chegou</div>
+        <div class="fg"><input id="altChegadaName2" placeholder="Nome do jogador" /></div>
+        <div class="upload-zone upload-zone-sm">
+          <input type="file" accept="image/*" onchange="onFile(event,'alt',1,'chegada')" />
+          <div class="upload-text">Foto do card (opcional)</div>
+          <img class="upload-preview" id="altPrev_1_chegada" alt="" />
+        </div>
+        <div class="fg">
+          <div class="fl">Frase do meio (opcional)</div>
+          <input id="altPhrase2" placeholder="ex: ESSE ERA FRACO DEMAIS" />
+        </div>
       </div>
+
+      <!-- Alteração 3 -->
+      <div class="alt-card">
+        <div class="alt-card-header"><span class="alt-card-num">Alteração 3</span></div>
+        <div class="alt-side-lbl">❌ Saiu</div>
+        <div class="fg"><input id="altSaidaName3" placeholder="Nome do jogador" /></div>
+        <div class="upload-zone upload-zone-sm">
+          <input type="file" accept="image/*" onchange="onFile(event,'alt',2,'saida')" />
+          <div class="upload-text">Foto do card (opcional)</div>
+          <img class="upload-preview" id="altPrev_2_saida" alt="" />
+        </div>
+        <div class="alt-side-lbl alt-side-lbl-chegada">✅ Chegou</div>
+        <div class="fg"><input id="altChegadaName3" placeholder="Nome do jogador" /></div>
+        <div class="upload-zone upload-zone-sm">
+          <input type="file" accept="image/*" onchange="onFile(event,'alt',2,'chegada')" />
+          <div class="upload-text">Foto do card (opcional)</div>
+          <img class="upload-preview" id="altPrev_2_chegada" alt="" />
+        </div>
+        <div class="fg">
+          <div class="fl">Frase do meio (opcional)</div>
+          <input id="altPhrase3" placeholder="ex: CARO E INÚTIL" />
+        </div>
+      </div>
+
+      <!-- Alteração 4 -->
+      <div class="alt-card">
+        <div class="alt-card-header"><span class="alt-card-num">Alteração 4</span></div>
+        <div class="alt-side-lbl">❌ Saiu</div>
+        <div class="fg"><input id="altSaidaName4" placeholder="Nome do jogador" /></div>
+        <div class="upload-zone upload-zone-sm">
+          <input type="file" accept="image/*" onchange="onFile(event,'alt',3,'saida')" />
+          <div class="upload-text">Foto do card (opcional)</div>
+          <img class="upload-preview" id="altPrev_3_saida" alt="" />
+        </div>
+        <div class="alt-side-lbl alt-side-lbl-chegada">✅ Chegou</div>
+        <div class="fg"><input id="altChegadaName4" placeholder="Nome do jogador" /></div>
+        <div class="upload-zone upload-zone-sm">
+          <input type="file" accept="image/*" onchange="onFile(event,'alt',3,'chegada')" />
+          <div class="upload-text">Foto do card (opcional)</div>
+          <img class="upload-preview" id="altPrev_3_chegada" alt="" />
+        </div>
+        <div class="fg">
+          <div class="fl">Frase do meio (opcional)</div>
+          <input id="altPhrase4" placeholder="ex: TROUXE O MELHOR" />
+        </div>
+      </div>
+
+      <!-- Alteração 5 -->
+      <div class="alt-card">
+        <div class="alt-card-header"><span class="alt-card-num">Alteração 5</span></div>
+        <div class="alt-side-lbl">❌ Saiu</div>
+        <div class="fg"><input id="altSaidaName5" placeholder="Nome do jogador" /></div>
+        <div class="upload-zone upload-zone-sm">
+          <input type="file" accept="image/*" onchange="onFile(event,'alt',4,'saida')" />
+          <div class="upload-text">Foto do card (opcional)</div>
+          <img class="upload-preview" id="altPrev_4_saida" alt="" />
+        </div>
+        <div class="alt-side-lbl alt-side-lbl-chegada">✅ Chegou</div>
+        <div class="fg"><input id="altChegadaName5" placeholder="Nome do jogador" /></div>
+        <div class="upload-zone upload-zone-sm">
+          <input type="file" accept="image/*" onchange="onFile(event,'alt',4,'chegada')" />
+          <div class="upload-text">Foto do card (opcional)</div>
+          <img class="upload-preview" id="altPrev_4_chegada" alt="" />
+        </div>
+        <div class="fg">
+          <div class="fl">Frase do meio (opcional)</div>
+          <input id="altPhrase5" placeholder="ex: PERFEITO PRO META" />
+        </div>
+      </div>
+
     </div>
 
     <!-- COLUNA 3: Preview -->
@@ -103,16 +200,13 @@
           <rect width="360" height="640" fill="#08050f"/>
           <rect width="360" height="640" fill="url(#bg1)"/>
           <rect width="360" height="640" fill="url(#bg2)"/>
-          <!-- Diagonal lines -->
           <line x1="-60" y1="0" x2="280" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
           <line x1="40" y1="0" x2="380" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
           <line x1="140" y1="0" x2="480" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
           <line x1="240" y1="0" x2="580" y2="640" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.05"/>
           <line x1="-160" y1="0" x2="180" y2="640" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.04"/>
-          <!-- Corner accents -->
           <polygon points="360,0 360,100 260,0" fill="#8b5cf6" opacity="0.07"/>
           <polygon points="0,640 100,640 0,540" fill="#d946ef" opacity="0.06"/>
-          <!-- Diamond shape center-right -->
           <polygon points="310,300 330,320 310,340 290,320" fill="none" stroke="#d946ef" stroke-width="0.8" stroke-opacity="0.12"/>
           <polygon points="310,285 345,320 310,355 275,320" fill="none" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.07"/>
         </svg>
@@ -126,15 +220,39 @@
         </div>
         <div class="team-wrap" id="teamWrap">
           <img class="team-img" id="teamImgOrig" src="" alt="" />
-          <div class="phase-label" id="phaseLabel"></div>
-          <div class="transfer-badge-area" id="transferArea"></div>
         </div>
         <div class="meta-badges" id="metaBadges">
           <div class="badge" id="badgeCoins">💰 —</div>
           <div class="badge" id="badgeForragem">Forragem: —</div>
         </div>
 
-        <!-- Tela 2: CTA -->
+        <!-- Tela 2: Alteração split-screen -->
+        <div class="act-screen act-alteration" id="actAlt">
+          <div class="alt-top">
+            <img class="alt-player-img" id="altImgSaida" src="" alt="" />
+            <div class="alt-lbl-badge alt-lbl-saida">❌ SAIU</div>
+            <div class="alt-player-name" id="altNameSaida"></div>
+          </div>
+          <div class="alt-divider-bar">
+            <div class="alt-phrase-text" id="altPhrase"></div>
+          </div>
+          <div class="alt-bottom">
+            <img class="alt-player-img" id="altImgChegada" src="" alt="" />
+            <div class="alt-lbl-badge alt-lbl-chegada">✅ CHEGOU</div>
+            <div class="alt-player-name" id="altNameChegada"></div>
+          </div>
+        </div>
+
+        <!-- Tela 3: Time Final -->
+        <div class="act-screen act-final" id="actFinal">
+          <div class="act-final-bg"></div>
+          <div class="act-final-wrap">
+            <div class="act-final-label">TIME ANALISADO</div>
+            <img class="act-final-img" id="actFinalImg" src="" alt="" />
+          </div>
+        </div>
+
+        <!-- Tela 4: CTA -->
         <div class="act-screen act-cta" id="actCta">
           <div class="cta-bg"></div>
           <div class="corner tl" id="cTL"></div>
@@ -142,7 +260,6 @@
           <div class="corner bl" id="cBL"></div>
           <div class="corner br" id="cBR"></div>
           <div class="cta-content">
-
             <div class="cta-question">QUER TER SEU TIME ANALISADO?</div>
             <div class="cta-line" id="ctaLine"></div>
             <div class="cta-free"><span class="cf-l">G</span><span class="cf-l">R</span><span class="cf-l">A</span><span class="cf-l">T</span><span class="cf-l">U</span><span class="cf-l">I</span><span class="cf-l">T</span><span class="cf-l">O</span></div>
@@ -205,16 +322,39 @@
       </div>
       <div class="team-wrap" id="teamWrapFS">
         <img class="team-img" id="teamImgOrigFS" src="" alt="" />
-        <div class="phase-label" id="phaseLabelFS"></div>
-        <div class="transfer-badge-area" id="transferAreaFS"></div>
       </div>
       <div class="meta-badges" id="metaBadgesFS">
         <div class="badge" id="badgeCoinsFS">💰 —</div>
         <div class="badge" id="badgeForragemFS">Forragem: —</div>
       </div>
 
+      <!-- Tela 2 FS: Alteração split-screen -->
+      <div class="act-screen act-alteration" id="actAltFS">
+        <div class="alt-top">
+          <img class="alt-player-img" id="altImgSaidaFS" src="" alt="" />
+          <div class="alt-lbl-badge alt-lbl-saida">❌ SAIU</div>
+          <div class="alt-player-name" id="altNameSaidaFS"></div>
+        </div>
+        <div class="alt-divider-bar">
+          <div class="alt-phrase-text" id="altPhraseFS"></div>
+        </div>
+        <div class="alt-bottom">
+          <img class="alt-player-img" id="altImgChegadaFS" src="" alt="" />
+          <div class="alt-lbl-badge alt-lbl-chegada">✅ CHEGOU</div>
+          <div class="alt-player-name" id="altNameChegadaFS"></div>
+        </div>
+      </div>
 
-      <!-- Tela 2 FS: CTA -->
+      <!-- Tela 3 FS: Time Final -->
+      <div class="act-screen act-final" id="actFinalFS">
+        <div class="act-final-bg"></div>
+        <div class="act-final-wrap">
+          <div class="act-final-label">TIME ANALISADO</div>
+          <img class="act-final-img" id="actFinalImgFS" src="" alt="" />
+        </div>
+      </div>
+
+      <!-- Tela 4 FS: CTA -->
       <div class="act-screen act-cta" id="actCtaFS">
         <div class="cta-bg"></div>
         <div class="corner tl" id="cTLFS"></div>
@@ -233,6 +373,6 @@
   </div>
 </div><!-- /fsOverlay -->
 
-<script src="js/script.js?v=3"></script>
+<script src="js/script.js?v=4"></script>
 </body>
 </html>

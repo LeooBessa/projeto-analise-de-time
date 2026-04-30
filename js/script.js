@@ -1,78 +1,68 @@
-const imgs = { orig: null, saidas: null, final: null };
+const imgs = {
+  orig: null,
+  final: null,
+  alts: Array.from({ length: 5 }, () => ({ saida: null, chegada: null }))
+};
 
 const FORRAGEM_CLASS = { muito: 'badge-forragem-muito', mediano: 'badge-forragem-mediano', pouco: 'badge-forragem-pouco' };
 const FORRAGEM_LABEL = { muito: 'Muito', mediano: 'Mediano', pouco: 'Pouco' };
 
-function onFile(e, slot) {
+function onFile(e, type, altIdx, side) {
   const f = e.target.files[0];
   if (!f) return;
-  const nameMap = { orig: 'uploadName1', saidas: 'uploadName2', final: 'uploadName3' };
-  const prevMap = { orig: 'uploadPrev1', saidas: 'uploadPrev2', final: 'uploadPrev3' };
-  document.getElementById(nameMap[slot]).textContent = f.name;
-  document.getElementById(nameMap[slot]).style.display = 'block';
   const r = new FileReader();
   r.onload = ev => {
-    imgs[slot] = ev.target.result;
-    const prev = document.getElementById(prevMap[slot]);
-    prev.src = ev.target.result;
-    prev.style.display = 'block';
+    const data = ev.target.result;
+    if (type === 'orig') {
+      imgs.orig = data;
+      showPrev('uploadPrev1', 'uploadName1', data, f.name);
+    } else if (type === 'final') {
+      imgs.final = data;
+      showPrev('uploadPrev2', 'uploadName2', data, f.name);
+    } else if (type === 'alt') {
+      imgs.alts[altIdx][side] = data;
+      showPrev('altPrev_' + altIdx + '_' + side, null, data, null);
+    }
   };
   r.readAsDataURL(f);
 }
 
+function showPrev(prevId, nameId, src, name) {
+  const prev = g(prevId);
+  if (prev) { prev.src = src; prev.style.display = 'block'; }
+  if (nameId) {
+    const nameEl = g(nameId);
+    if (nameEl && name) { nameEl.textContent = name; nameEl.style.display = 'block'; }
+  }
+}
+
 function g(id) { return document.getElementById(id); }
 
-function escapeHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function parsePlayers(text) {
-  return (text || '').split('\n')
-    .map(l => l.trim().replace(/^-\s*/, ''))
-    .filter(l => l.length > 0)
-    .map(l => {
-      const m = l.match(/^(.+?):\s*(.+)$/);
-      return m ? { name: m[1].trim(), reason: m[2].trim() } : { name: l, reason: '' };
-    });
-}
-
-let _badgeTimers = [];
-
-function clearBadgeTimers() {
-  _badgeTimers.forEach(t => clearTimeout(t));
-  _badgeTimers = [];
-}
-
-function runBadges(areaId, players, type) {
-  const area = g(areaId);
-  if (!area || !players.length) return;
-  area.innerHTML = '';
-
-  const BADGE_DUR = 1800;
-  const icon = type === 'saida' ? '❌' : '✅';
-
-  players.forEach((player, i) => {
-    const badge = document.createElement('div');
-    badge.className = 'tb tb-' + type;
-    badge.innerHTML =
-      '<span class="tb-icon">' + icon + '</span>' +
-      '<div class="tb-text">' +
-        '<div class="tb-name">' + escapeHtml(player.name) + '</div>' +
-        (player.reason ? '<div class="tb-reason">' + escapeHtml(player.reason) + '</div>' : '') +
-      '</div>';
-    area.appendChild(badge);
-
-    const tIn = setTimeout(() => badge.classList.add('in'), i * BADGE_DUR + 50);
-    _badgeTimers.push(tIn);
-
-    if (i < players.length - 1) {
-      const tOut = setTimeout(() => {
-        badge.classList.remove('in');
-        badge.classList.add('out');
-      }, i * BADGE_DUR + 1500);
-      _badgeTimers.push(tOut);
+function getAlts() {
+  const result = [];
+  for (let i = 0; i < 5; i++) {
+    const ns = ((g('altSaidaName'   + (i + 1)) || {}).value || '').trim();
+    const nc = ((g('altChegadaName' + (i + 1)) || {}).value || '').trim();
+    const ph = ((g('altPhrase'      + (i + 1)) || {}).value || '').trim();
+    if (ns || nc || imgs.alts[i].saida || imgs.alts[i].chegada) {
+      result.push({ saidaName: ns, chegadaName: nc, phrase: ph, saidaImg: imgs.alts[i].saida, chegadaImg: imgs.alts[i].chegada });
     }
-  });
+  }
+  return result;
+}
+
+function setAltContent(sfx, alt) {
+  const imgS = g('altImgSaida'    + sfx); if (imgS) imgS.src = alt.saidaImg   || '';
+  const imgC = g('altImgChegada'  + sfx); if (imgC) imgC.src = alt.chegadaImg || '';
+  const nS   = g('altNameSaida'   + sfx); if (nS)   nS.textContent  = alt.saidaName;
+  const nC   = g('altNameChegada' + sfx); if (nC)   nC.textContent  = alt.chegadaName;
+  const ph   = g('altPhrase'      + sfx); if (ph)   ph.textContent  = alt.phrase;
+}
+
+let _animTimers = [];
+function clearAnimTimers() {
+  _animTimers.forEach(t => clearTimeout(t));
+  _animTimers = [];
 }
 
 function sP(sfx, t) {
@@ -100,25 +90,16 @@ function flash(sfx, cb) {
   setTimeout(() => f.classList.remove('scanning'), 750);
 }
 
-function mF(sfx, n, iv, cb) { flash(sfx, cb); }
-
 function aIn(id, d) {
-  setTimeout(() => { const el = g(id); if (el) el.classList.add('in'); }, d);
+  const t = setTimeout(() => { const el = g(id); if (el) el.classList.add('in'); }, d);
+  _animTimers.push(t);
 }
 
 function rAll(sfx) {
-  clearBadgeTimers();
-
-  const area = g('transferArea' + sfx);
-  if (area) area.innerHTML = '';
-
-  const pl = g('phaseLabel' + sfx);
-  if (pl) { pl.className = 'phase-label'; pl.textContent = ''; }
-
+  clearAnimTimers();
   const img = g('teamImgOrig' + sfx);
   if (img && imgs.orig) img.src = imgs.orig;
-
-  ['anlTag', 'galanTag', 'teamWrap', 'metaBadges', 'actCta', 'cTL', 'cTR', 'cBL', 'cBR']
+  ['anlTag', 'teamWrap', 'metaBadges', 'actAlt', 'actFinal', 'actCta', 'cTL', 'cTR', 'cBL', 'cBR']
     .forEach(id => { const el = g(id + sfx); if (el) el.classList.remove('in'); });
 }
 
@@ -131,96 +112,87 @@ function prepData(sfx) {
   if (badgeCoin) badgeCoin.textContent = '💰 ' + (coinsEl ? coinsEl.value.trim() || '—' : '—');
 
   const fForragemEl = g('fForragem');
-  const fBadge = g('badgeForragem' + sfx);
+  const fBadge      = g('badgeForragem' + sfx);
   if (fBadge && fForragemEl) {
     const fKey = fForragemEl.value;
     fBadge.textContent = 'Forragem: ' + FORRAGEM_LABEL[fKey];
-    fBadge.className = 'badge ' + FORRAGEM_CLASS[fKey];
+    fBadge.className   = 'badge ' + FORRAGEM_CLASS[fKey];
   }
 
-  const tema = g('fTema') ? g('fTema').value.trim() : '';
+  const tema        = g('fTema') ? g('fTema').value.trim() : '';
   const stickerText = g('stickerText');
   const stickerWrap = g('stickerWrap');
   if (stickerText) stickerText.textContent = tema;
   if (stickerWrap) stickerWrap.style.display = tema ? '' : 'none';
 
-  const epNum = parseInt((g('fEp') && g('fEp').value.trim()) || '1');
-  const epPad = String(epNum).padStart(2, '0');
+  const epNum   = parseInt((g('fEp') && g('fEp').value.trim()) || '1');
+  const epPad   = String(epNum).padStart(2, '0');
   const epBadge = g('epIntroBadge');
   if (epBadge) epBadge.innerHTML = '<span class="ep-label">EP</span><span class="ep-num">' + epPad + '</span><span class="ep-arrow">▸</span>';
 }
 
 function runAnim(sfx) {
-  const saidas   = parsePlayers(g('fSaidas').value   || '');
-  const chegadas = parsePlayers(g('fChegadas').value || '');
+  const alts = getAlts();
 
-  const BADGE_DUR  = 1800;
-  const PHASE_PAD  = 600;
-  const SETUP_DUR  = 2200;
-  const CTA_DUR    = 5000;
+  const INTRO_DUR = 2000;
+  const ALT_DUR   = 3500;
+  const FINAL_DUR = 2800;
+  const CTA_DUR   = 5000;
 
-  const durSaidas   = Math.max(saidas.length,   1) * BADGE_DUR + 400;
-  const durChegadas = Math.max(chegadas.length, 1) * BADGE_DUR + 400;
-
-  const T_SAIDAS   = SETUP_DUR;
-  const T_SWITCH1  = T_SAIDAS   + durSaidas;
-  const T_CHEGADAS = T_SWITCH1  + PHASE_PAD;
-  const T_SWITCH2  = T_CHEGADAS + durChegadas;
-  const T_CTA      = T_SWITCH2  + PHASE_PAD + 800;
-  const TD         = T_CTA      + CTA_DUR;
+  const T_ALT_START = INTRO_DUR;
+  const T_FINAL     = T_ALT_START + alts.length * ALT_DUR + (alts.length > 0 ? 400 : 200);
+  const T_CTA       = T_FINAL     + FINAL_DUR;
+  const TD          = T_CTA       + CTA_DUR;
 
   sP(sfx, TD);
   flash(sfx);
 
   aIn('anlTag'     + sfx, 200);
-  aIn('galanTag'   + sfx, 200);
   aIn('teamWrap'   + sfx, 650);
   aIn('metaBadges' + sfx, 1200);
 
-  setTimeout(() => {
+  const tHideBadges = setTimeout(() => {
     const mb = g('metaBadges' + sfx);
     if (mb) mb.classList.remove('in');
-  }, T_SAIDAS - 400);
+  }, T_ALT_START - 400);
+  _animTimers.push(tHideBadges);
 
-  // SAÍDAS
-  setTimeout(() => {
-    const pl = g('phaseLabel' + sfx);
-    if (pl) { pl.className = 'phase-label pl-saidas'; void pl.offsetHeight; pl.classList.add('in'); }
-    runBadges('transferArea' + sfx, saidas, 'saida');
-  }, T_SAIDAS);
+  alts.forEach((alt, i) => {
+    const tStart = T_ALT_START + i * ALT_DUR;
+    const tEnd   = tStart + ALT_DUR - 400;
 
-  setTimeout(() => {
-    const pl = g('phaseLabel' + sfx);
-    if (pl) pl.classList.remove('in');
-    const area = g('transferArea' + sfx);
-    if (area) area.innerHTML = '';
+    const tS = setTimeout(() => {
+      setAltContent(sfx, alt);
+      const el = g('actAlt' + sfx);
+      if (el) { el.classList.remove('in'); void el.offsetHeight; }
+      flash(sfx, () => {
+        const el2 = g('actAlt' + sfx);
+        if (el2) el2.classList.add('in');
+      });
+    }, tStart);
+    _animTimers.push(tS);
+
+    const tE = setTimeout(() => {
+      const el = g('actAlt' + sfx);
+      if (el) el.classList.remove('in');
+    }, tEnd);
+    _animTimers.push(tE);
+  });
+
+  const tFinal = setTimeout(() => {
+    const finalImg = g('actFinalImg' + sfx);
+    if (finalImg && imgs.final) finalImg.src = imgs.final;
     flash(sfx, () => {
-      const img = g('teamImgOrig' + sfx);
-      if (img && imgs.saidas) img.src = imgs.saidas;
+      const el = g('actFinal' + sfx);
+      if (el) el.classList.add('in');
     });
-  }, T_SWITCH1);
+  }, T_FINAL);
+  _animTimers.push(tFinal);
 
-  // CHEGADAS
-  setTimeout(() => {
-    const pl = g('phaseLabel' + sfx);
-    if (pl) { pl.className = 'phase-label pl-chegadas'; void pl.offsetHeight; pl.classList.add('in'); }
-    runBadges('transferArea' + sfx, chegadas, 'chegada');
-  }, T_CHEGADAS);
-
-  setTimeout(() => {
-    const pl = g('phaseLabel' + sfx);
-    if (pl) pl.classList.remove('in');
-    const area = g('transferArea' + sfx);
-    if (area) area.innerHTML = '';
+  const tCta = setTimeout(() => {
+    const el = g('actFinal' + sfx);
+    if (el) el.classList.remove('in');
     flash(sfx, () => {
-      const img = g('teamImgOrig' + sfx);
-      if (img && imgs.final) img.src = imgs.final;
-    });
-  }, T_SWITCH2);
-
-  // CTA
-  setTimeout(() => {
-    mF(sfx, 3, 110, () => {
       aIn('actCta' + sfx, 0);
       aIn('cTL'    + sfx, 200);
       aIn('cTR'    + sfx, 260);
@@ -228,6 +200,7 @@ function runAnim(sfx) {
       aIn('cBR'    + sfx, 380);
     });
   }, T_CTA);
+  _animTimers.push(tCta);
 
   return TD;
 }
@@ -251,7 +224,8 @@ function openFullscreen() {
   prepData('FS');
 
   if (_fsCloseTimer) clearTimeout(_fsCloseTimer);
-  g('fsClose').style.display = 'none';
+  const fsClose = g('fsClose');
+  if (fsClose) fsClose.style.display = 'none';
 
   const wrap = g('fsSceneWrap');
   const sw = window.innerWidth, sh = window.innerHeight;
@@ -263,17 +237,29 @@ function openFullscreen() {
     wrap.style.height = (sw * 16 / 9) + 'px';
   }
 
-  g('introTeamImg').src = imgs.orig || '';
+  const introTeam = g('introTeamImg');
+  if (introTeam) introTeam.src = imgs.orig || '';
   g('fsOverlay').classList.add('open');
 
   const intro   = g('fsIntro');
   const epBadge = g('epIntroBadge');
   const sticker = g('stickerWrap');
-  setTimeout(() => { intro.classList.add('in'); if (epBadge) epBadge.classList.add('in'); if (sticker) sticker.classList.add('in'); }, 50);
-  setTimeout(() => { intro.classList.remove('in'); if (epBadge) epBadge.classList.remove('in'); if (sticker) sticker.classList.remove('in'); }, 1200);
+  setTimeout(() => {
+    if (intro)   intro.classList.add('in');
+    if (epBadge) epBadge.classList.add('in');
+    if (sticker) sticker.classList.add('in');
+  }, 50);
+  setTimeout(() => {
+    if (intro)   intro.classList.remove('in');
+    if (epBadge) epBadge.classList.remove('in');
+    if (sticker) sticker.classList.remove('in');
+  }, 1200);
   setTimeout(() => {
     const td = runAnim('FS');
-    _fsCloseTimer = setTimeout(() => { g('fsClose').style.display = 'block'; }, td + 200);
+    _fsCloseTimer = setTimeout(() => {
+      const fc = g('fsClose');
+      if (fc) fc.style.display = 'block';
+    }, td + 200);
   }, 1600);
 }
 
