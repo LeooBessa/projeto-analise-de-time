@@ -136,12 +136,12 @@ function prepIntro() {
 function runAnim(sfx) {
   const alts = getAlts();
 
-  const ALT_DUR    = 3500;
-  const FINAL_WAIT = 2500;
+  const ALT_DUR = 3500;
+  const CTA_DUR = 5000;
 
-  const T_FIRST_ALT  = 300;
-  const T_FINAL_SHOW = T_FIRST_ALT + alts.length * ALT_DUR + (alts.length > 0 ? 400 : 0);
-  const TD           = T_FINAL_SHOW + FINAL_WAIT;
+  const T_FIRST_ALT = 300;
+  const T_CTA       = T_FIRST_ALT + alts.length * ALT_DUR + (alts.length > 0 ? 800 : 300);
+  const TD          = T_CTA + CTA_DUR;
 
   sP(sfx, TD);
   flash(sfx);
@@ -168,16 +168,16 @@ function runAnim(sfx) {
     _animTimers.push(tE);
   });
 
-  // Após as alterações: flash e mostra time final
-  const tFinal = setTimeout(() => {
-    const imgEl = g('teamImgOrig' + sfx);
-    if (imgEl && imgs.final) imgEl.src = imgs.final;
+  const tCta = setTimeout(() => {
     flash(sfx, () => {
-      const tw = g('teamWrap' + sfx);
-      if (tw) tw.classList.add('in');
+      aIn('actCta' + sfx, 0);
+      aIn('cTL'    + sfx, 200);
+      aIn('cTR'    + sfx, 260);
+      aIn('cBL'    + sfx, 320);
+      aIn('cBR'    + sfx, 380);
     });
-  }, T_FINAL_SHOW);
-  _animTimers.push(tFinal);
+  }, T_CTA);
+  _animTimers.push(tCta);
 
   return TD;
 }
