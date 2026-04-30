@@ -79,6 +79,9 @@ textarea { resize: vertical; line-height: 1.55; }
 .alt-bottom { background: linear-gradient(200deg, #052813 0%, #064e3b 100%); transform: translateY(100%); transition: transform 0.55s cubic-bezier(0.2,0,0,1); border-top: 1px solid rgba(134,239,172,0.15); }
 .act-alteration.in .alt-top { transform: translateY(0); }
 .act-alteration.in .alt-bottom { transform: translateY(0); }
+/* Reset instantâneo quando não está ativo — impede transição de saída aparecer na próxima entrada */
+.act-alteration:not(.in) .alt-top,
+.act-alteration:not(.in) .alt-bottom { transition: none; }
 
 .alt-player-img { height: 80%; width: auto; max-width: 62%; object-fit: contain; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 5px; filter: drop-shadow(0 4px 18px rgba(0,0,0,0.75)); }
 .alt-lbl-badge { position: absolute; top: 8px; left: 8px; font-family: 'Syne', sans-serif; font-size: 2.8cqw; font-weight: 800; letter-spacing: 1px; padding: 3px 8px; border-radius: 3px; text-transform: uppercase; }
@@ -91,7 +94,7 @@ textarea { resize: vertical; line-height: 1.55; }
 .alt-phrase-text { display: inline-block; font-family: 'Syne', sans-serif; font-size: 4cqw; font-weight: 800; color: #d946ef; text-transform: uppercase; letter-spacing: 1px; padding: 3px 12px; text-shadow: 0 0 16px rgba(217,70,239,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; background: rgba(0,0,0,0.55); border-radius: 3px; }
 
 /* Label SAÍDAS / CHEGADAS — fase antes dos jogadores */
-.alt-section-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Syne', sans-serif; font-size: 13cqw; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; opacity: 0; transition: opacity 0.35s; pointer-events: none; z-index: 5; text-align: center; width: 90%; }
+.alt-section-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Syne', sans-serif; font-size: 7cqw; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; opacity: 0; transition: opacity 0.35s; pointer-events: none; z-index: 5; text-align: center; width: 90%; white-space: nowrap; }
 .alt-top .alt-section-label { color: #fca5a5; text-shadow: 0 0 30px rgba(252,165,165,0.6); }
 .alt-bottom .alt-section-label { color: #86efac; text-shadow: 0 0 30px rgba(134,239,172,0.6); }
 
@@ -175,17 +178,17 @@ textarea { resize: vertical; line-height: 1.55; }
 .fs-intro { position: absolute; inset: 0; z-index: 200; background: #08050f; opacity: 0; pointer-events: none; transition: opacity 0.5s; }
 .fs-intro.in { opacity: 1; pointer-events: auto; }
 
-/* EP badge: canto superior esquerdo dentro da safe zone (12% topo) */
-.ep-intro-badge { position: absolute; top: 14%; left: 5%; z-index: 5; font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px; display: flex; align-items: baseline; gap: 4px; border-bottom: 1px solid rgba(217,70,239,0.45); padding-bottom: 4px; opacity: 0; transform: translateX(-14px); transition: opacity 0.45s 0.15s, transform 0.45s 0.15s ease-out; }
+/* EP badge: alinhado à esquerda acima da foto */
+.ep-intro-badge { font-family: 'Orbitron', sans-serif; font-weight: 700; letter-spacing: 2px; display: flex; align-items: baseline; gap: 4px; border-bottom: 1px solid rgba(217,70,239,0.45); padding-bottom: 4px; opacity: 0; transform: translateX(-14px); transition: opacity 0.45s 0.15s, transform 0.45s 0.15s ease-out; }
 .ep-intro-badge.in { opacity: 1; transform: translateX(0); }
 .ep-label { font-size: 2.5cqw; color: rgba(217,70,239,0.7); letter-spacing: 4px; }
 .ep-num { font-size: 8cqw; color: #ffffff; letter-spacing: 1px; text-shadow: 0 0 20px rgba(255,255,255,0.6), 0 0 40px rgba(217,70,239,0.5); }
 .ep-arrow { font-size: 3cqw; color: rgba(217,70,239,0.9); text-shadow: 0 0 12px rgba(217,70,239,0.8); }
 
 /* Conteúdo centralizado entre as safe zones (12% topo, 22% base) */
-.fs-intro-content { position: absolute; top: 12%; bottom: 22%; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
-.fs-intro-label { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2.8cqw; font-weight: 600; letter-spacing: 6px; color: rgba(217,70,239,0.5); text-transform: uppercase; }
-.fs-intro-title { font-family: 'Syne', sans-serif; font-size: 5.5cqw; font-weight: 800; letter-spacing: 3px; color: #d946ef; text-shadow: 0 0 30px rgba(217,70,239,0.9), 0 0 60px rgba(217,70,239,0.3); line-height: 1; white-space: nowrap; }
+.fs-intro-content { position: absolute; top: 12%; bottom: 22%; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+/* Linha acima da foto: EP à esquerda, sticker à direita */
+.fs-intro-above-photo { display: flex; justify-content: space-between; align-items: flex-end; width: 78%; padding-bottom: 4px; }
 .ep-scene-badge { position: absolute; top: 4%; left: 3.5%; z-index: 15; font-family: 'Orbitron', sans-serif; font-size: 3.2cqw; font-weight: 700; color: rgba(217,70,239,0.88); letter-spacing: 2px; text-shadow: 0 0 14px rgba(217,70,239,0.7), 0 0 28px rgba(217,70,239,0.3); opacity: 0; transform: translateX(-10px); transition: opacity 0.45s, transform 0.45s ease-out; }
 .ep-scene-badge.in { opacity: 1; transform: translateX(0); }
 .fs-intro-team { width: 78%; border-radius: 8px; box-shadow: 0 0 40px rgba(217,70,239,0.5), 0 0 80px rgba(139,92,246,0.15); display: block; }
