@@ -86,10 +86,6 @@
           <div class="upload-text">Foto do card (opcional)</div>
           <img class="upload-preview" id="altPrev_0_chegada" alt="" />
         </div>
-        <div class="fg">
-          <div class="fl">Frase do meio (opcional)</div>
-          <input id="altPhrase1" placeholder="ex: UPGRADE NECESSÁRIO" />
-        </div>
       </div>
 
       <!-- Alteração 2 -->
@@ -108,10 +104,6 @@
           <input type="file" accept="image/*" onchange="onFile(event,'alt',1,'chegada')" />
           <div class="upload-text">Foto do card (opcional)</div>
           <img class="upload-preview" id="altPrev_1_chegada" alt="" />
-        </div>
-        <div class="fg">
-          <div class="fl">Frase do meio (opcional)</div>
-          <input id="altPhrase2" placeholder="ex: ESSE ERA FRACO DEMAIS" />
         </div>
       </div>
 
@@ -132,10 +124,6 @@
           <div class="upload-text">Foto do card (opcional)</div>
           <img class="upload-preview" id="altPrev_2_chegada" alt="" />
         </div>
-        <div class="fg">
-          <div class="fl">Frase do meio (opcional)</div>
-          <input id="altPhrase3" placeholder="ex: CARO E INÚTIL" />
-        </div>
       </div>
 
       <!-- Alteração 4 -->
@@ -155,10 +143,6 @@
           <div class="upload-text">Foto do card (opcional)</div>
           <img class="upload-preview" id="altPrev_3_chegada" alt="" />
         </div>
-        <div class="fg">
-          <div class="fl">Frase do meio (opcional)</div>
-          <input id="altPhrase4" placeholder="ex: TROUXE O MELHOR" />
-        </div>
       </div>
 
       <!-- Alteração 5 -->
@@ -177,10 +161,6 @@
           <input type="file" accept="image/*" onchange="onFile(event,'alt',4,'chegada')" />
           <div class="upload-text">Foto do card (opcional)</div>
           <img class="upload-preview" id="altPrev_4_chegada" alt="" />
-        </div>
-        <div class="fg">
-          <div class="fl">Frase do meio (opcional)</div>
-          <input id="altPhrase5" placeholder="ex: PERFEITO PRO META" />
         </div>
       </div>
 
@@ -238,11 +218,6 @@
             <img class="alt-player-img" id="altImgChegada" src="" alt="" />
             <div class="alt-player-name" id="altNameChegada"></div>
           </div>
-          <div class="alt-phrase-overlay">
-            <div class="alt-phrase-card" id="altPhraseCard">
-              <div class="alt-phrase-text" id="altPhrase"></div>
-            </div>
-          </div>
         </div>
 
         <!-- Tela 3: Time Analisado -->
@@ -284,6 +259,9 @@
 <div class="fs-overlay" id="fsOverlay">
   <div class="fs-close" id="fsClose" onclick="closeFullscreen()">✕ Fechar</div>
   <div class="fs-scene-wrap" id="fsSceneWrap">
+
+    <!-- Flash acima da intro para cobrir a transição intro → alterações -->
+    <div class="flash-overlay" id="flashTopFS" style="z-index:250;position:absolute;"></div>
 
     <!-- Intro inside the 9:16 canvas so % values respect TikTok safe zones -->
     <div class="fs-intro" id="fsIntro">
@@ -348,11 +326,6 @@
           <div class="alt-section-label">CHEGADAS</div>
           <img class="alt-player-img" id="altImgChegadaFS" src="" alt="" />
           <div class="alt-player-name" id="altNameChegadaFS"></div>
-        </div>
-        <div class="alt-phrase-overlay">
-          <div class="alt-phrase-card" id="altPhraseCardFS">
-            <div class="alt-phrase-text" id="altPhraseFS"></div>
-          </div>
         </div>
       </div>
 

@@ -43,9 +43,8 @@ function getAlts() {
   for (let i = 0; i < 5; i++) {
     const ns = ((g('altSaidaName'   + (i + 1)) || {}).value || '').trim();
     const nc = ((g('altChegadaName' + (i + 1)) || {}).value || '').trim();
-    const ph = ((g('altPhrase'      + (i + 1)) || {}).value || '').trim();
     if (ns || nc || imgs.alts[i].saida || imgs.alts[i].chegada) {
-      result.push({ saidaName: ns, chegadaName: nc, phrase: ph, saidaImg: imgs.alts[i].saida, chegadaImg: imgs.alts[i].chegada });
+      result.push({ saidaName: ns, chegadaName: nc, saidaImg: imgs.alts[i].saida, chegadaImg: imgs.alts[i].chegada });
     }
   }
   return result;
@@ -54,10 +53,8 @@ function getAlts() {
 function setAltContent(sfx, alt) {
   const imgS = g('altImgSaida'    + sfx); if (imgS) imgS.src = alt.saidaImg   || '';
   const imgC = g('altImgChegada'  + sfx); if (imgC) imgC.src = alt.chegadaImg || '';
-  const nS   = g('altNameSaida'   + sfx); if (nS)   nS.textContent  = alt.saidaName;
-  const nC   = g('altNameChegada' + sfx); if (nC)   nC.textContent  = alt.chegadaName;
-  const ph   = g('altPhrase'      + sfx); if (ph)   ph.textContent  = alt.phrase;
-  const phCard = g('altPhraseCard' + sfx); if (phCard) phCard.style.display = alt.phrase ? 'inline-block' : 'none';
+  const nS   = g('altNameSaida'   + sfx); if (nS)   nS.textContent = alt.saidaName;
+  const nC   = g('altNameChegada' + sfx); if (nC)   nC.textContent = alt.chegadaName;
 }
 
 let _animTimers = [];
@@ -79,6 +76,15 @@ function sP(sfx, t) {
     if (p < 1) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
+}
+
+function flashEl(el, cb) {
+  if (!el) { if (cb) setTimeout(cb, 380); return; }
+  el.classList.remove('scanning');
+  void el.offsetHeight;
+  el.classList.add('scanning');
+  if (cb) setTimeout(cb, 380);
+  setTimeout(() => el.classList.remove('scanning'), 750);
 }
 
 function flash(sfx, cb) {
@@ -139,9 +145,6 @@ function rAll(sfx) {
 
   ids.forEach(id => { const el = g(id + sfx); if (el) el.style.transition = ''; });
   if (altEl) { altEl.querySelectorAll('.alt-top, .alt-bottom').forEach(half => { half.style.transition = ''; }); }
-
-  const phCard = g('altPhraseCard' + sfx);
-  if (phCard) phCard.style.display = 'none';
 }
 
 function prepData(sfx) {
@@ -304,20 +307,23 @@ function openFullscreen() {
     if (cBadge)  cBadge.classList.add('in');
     if (fBadge)  fBadge.classList.add('in');
   }, 50);
+
+  // Flash acima da intro (z-index 250) → no callback remove intro e inicia animação.
+  // O flash cobre a intro ainda visível; quando as metades entram a intro já sumiu.
   setTimeout(() => {
-    if (intro)   intro.classList.remove('in');
-    if (epBadge) epBadge.classList.remove('in');
-    if (sticker) sticker.classList.remove('in');
-    if (cBadge)  cBadge.classList.remove('in');
-    if (fBadge)  fBadge.classList.remove('in');
+    flashEl(g('flashTopFS'), () => {
+      if (intro)   intro.classList.remove('in');
+      if (epBadge) epBadge.classList.remove('in');
+      if (sticker) sticker.classList.remove('in');
+      if (cBadge)  cBadge.classList.remove('in');
+      if (fBadge)  fBadge.classList.remove('in');
+      const td = runAnim('FS');
+      _fsCloseTimer = setTimeout(() => {
+        const fc = g('fsClose');
+        if (fc) fc.style.display = 'block';
+      }, td + 200);
+    });
   }, 1200);
-  setTimeout(() => {
-    const td = runAnim('FS');
-    _fsCloseTimer = setTimeout(() => {
-      const fc = g('fsClose');
-      if (fc) fc.style.display = 'block';
-    }, td + 200);
-  }, 1600);
 }
 
 function closeFullscreen() {
