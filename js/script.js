@@ -57,6 +57,7 @@ function setAltContent(sfx, alt) {
   const nS   = g('altNameSaida'   + sfx); if (nS)   nS.textContent  = alt.saidaName;
   const nC   = g('altNameChegada' + sfx); if (nC)   nC.textContent  = alt.chegadaName;
   const ph   = g('altPhrase'      + sfx); if (ph)   ph.textContent  = alt.phrase;
+  const phCard = g('altPhraseCard' + sfx); if (phCard) phCard.style.display = alt.phrase ? '' : 'none';
 }
 
 let _animTimers = [];
@@ -113,8 +114,31 @@ function rAll(sfx) {
   clearAnimTimers();
   const img = g('teamImgOrig' + sfx);
   if (img && imgs.orig) img.src = imgs.orig;
-  ['anlTag', 'teamWrap', 'actAlt', 'actFinal', 'actCta', 'cTL', 'cTR', 'cBL', 'cBR']
-    .forEach(id => { const el = g(id + sfx); if (el) { el.classList.remove('in'); el.classList.remove('label-phase'); } });
+
+  const ids = ['anlTag', 'teamWrap', 'actAlt', 'actFinal', 'actCta', 'cTL', 'cTR', 'cBL', 'cBR'];
+
+  // Snap: disable transitions before removing classes so there's no fade flicker on reset
+  ids.forEach(id => { const el = g(id + sfx); if (el) el.style.transition = 'none'; });
+
+  const altEl = g('actAlt' + sfx);
+  if (altEl) {
+    altEl.querySelectorAll('.alt-top, .alt-bottom').forEach((half, i) => {
+      half.style.transition = 'none';
+      half.style.transform = i === 0 ? 'translateY(-100%)' : 'translateY(100%)';
+    });
+  }
+
+  ids.forEach(id => {
+    const el = g(id + sfx);
+    if (!el) return;
+    el.classList.remove('in');
+    el.classList.remove('label-phase');
+  });
+
+  void document.body.offsetHeight; // force reflow so snap applies
+
+  ids.forEach(id => { const el = g(id + sfx); if (el) el.style.transition = ''; });
+  if (altEl) { altEl.querySelectorAll('.alt-top, .alt-bottom').forEach(half => { half.style.transition = ''; }); }
 }
 
 function prepData(sfx) {
@@ -165,6 +189,10 @@ function runAnim(sfx) {
 
   sP(sfx, TD);
   flash(sfx);
+
+  // Base layer: aparece imediatamente para preencher o espaço entre telas
+  aIn('anlTag'   + sfx, 0);
+  aIn('teamWrap' + sfx, 150);
 
   if (alts.length > 0) {
     // Fase de label: SAÍDAS / CHEGADAS em destaque
