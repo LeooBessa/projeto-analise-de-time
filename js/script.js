@@ -179,50 +179,53 @@ function prepIntro() {
   if (epBadge) epBadge.innerHTML = '<span class="ep-label">EP</span><span class="ep-num">' + epPad + '</span><span class="ep-arrow">▸</span>';
 }
 
-function runAnim(sfx) {
+// skipFirst=true: openFullscreen já entrou na fase de label via flashTopFS,
+// runAnim só gerencia os timers a partir do conteúdo da 1ª alt.
+function runAnim(sfx, skipFirst) {
   const alts = getAlts();
 
-  // Regra: toda mudança de tela ocorre no callback do flash (380ms após o disparo),
-  // no pico da luz. Nunca em timers independentes do flash.
   const FLASH_CB  = 380;
   const LABEL_DUR = 1200;
   const ALT_DUR   = 3500;
   const FINAL_DUR = 3000;
   const CTA_DUR   = 5000;
+  const T_ALT_FLASH = 100;
 
-  const T_ALT_FLASH   = 500;
-  const T_CONTENT     = T_ALT_FLASH + FLASH_CB + LABEL_DUR;
+  // skipFirst: label já foi mostrada em t=0 (pelo flashTopFS), conteúdo aparece após LABEL_DUR.
+  // !skipFirst (preview): flash dispara em T_ALT_FLASH, label entra no callback, conteúdo após +LABEL_DUR.
+  const T_CONTENT = skipFirst
+    ? LABEL_DUR
+    : T_ALT_FLASH + FLASH_CB + LABEL_DUR;
 
   const T_FINAL_FLASH = alts.length > 0
     ? T_CONTENT + alts.length * ALT_DUR
-    : T_ALT_FLASH + 300;
+    : (skipFirst ? 500 : T_ALT_FLASH + 300);
 
   const T_CTA_FLASH = T_FINAL_FLASH + FLASH_CB + FINAL_DUR;
   const TD          = T_CTA_FLASH   + FLASH_CB + CTA_DUR;
 
   sP(sfx, TD);
 
-  // Flash decorativo de abertura
-  _animTimers.push(setTimeout(() => flash(sfx), 100));
-
   if (alts.length > 0) {
-    // Flash → fase de label entra (SAÍDAS / CHEGADAS)
-    _animTimers.push(setTimeout(() => {
-      prepAlt(sfx);
-      flash(sfx, () => {
-        const el = g('actAlt' + sfx);
-        if (el) { el.classList.add('label-phase'); el.classList.add('in'); }
-      });
-    }, T_ALT_FLASH));
+    if (!skipFirst) {
+      // Preview: flash → fase de label entra
+      _animTimers.push(setTimeout(() => {
+        prepAlt(sfx);
+        flash(sfx, () => {
+          const el = g('actAlt' + sfx);
+          if (el) { el.classList.add('label-phase'); el.classList.add('in'); }
+        });
+      }, T_ALT_FLASH));
+    }
 
-    // Label → conteúdo da 1ª alt (tela já aberta, sem flash — só troca o conteúdo)
+    // Label → conteúdo da 1ª alt (sem flash — tela já está aberta)
     _animTimers.push(setTimeout(() => {
       setAltContent(sfx, alts[0]);
       const el = g('actAlt' + sfx);
       if (el) el.classList.remove('label-phase');
     }, T_CONTENT));
 
-    // Alterações seguintes: flash → snap + reanima as metades (actAlt mantém .in)
+    // Alterações seguintes: flash → snap + reanima as metades
     alts.forEach((alt, i) => {
       if (i === 0) return;
       _animTimers.push(setTimeout(() => {
@@ -308,8 +311,8 @@ function openFullscreen() {
     if (fBadge)  fBadge.classList.add('in');
   }, 50);
 
-  // Flash acima da intro (z-index 250) → no callback remove intro e inicia animação.
-  // O flash cobre a intro ainda visível; quando as metades entram a intro já sumiu.
+  // flashTopFS (z-index 250, acima da intro) serve como o único flash da transição intro→alt.
+  // No callback: remove a intro E entra na fase de label — sem disparar outro flash na cena.
   setTimeout(() => {
     flashEl(g('flashTopFS'), () => {
       if (intro)   intro.classList.remove('in');
@@ -317,7 +320,17 @@ function openFullscreen() {
       if (sticker) sticker.classList.remove('in');
       if (cBadge)  cBadge.classList.remove('in');
       if (fBadge)  fBadge.classList.remove('in');
-      const td = runAnim('FS');
+
+      // Entra na fase de label direto (flashTopFS já foi o flash de transição)
+      const alts = getAlts();
+      if (alts.length > 0) {
+        prepAlt('FS');
+        const el = g('actAltFS');
+        if (el) { el.classList.add('label-phase'); el.classList.add('in'); }
+      }
+
+      // runAnim começa já sabendo que a fase de label foi iniciada (skipFirst=true)
+      const td = runAnim('FS', true);
       _fsCloseTimer = setTimeout(() => {
         const fc = g('fsClose');
         if (fc) fc.style.display = 'block';
