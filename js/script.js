@@ -95,6 +95,20 @@ function aIn(id, d) {
   _animTimers.push(t);
 }
 
+function prepAlt(sfx) {
+  const el = g('actAlt' + sfx);
+  if (!el) return;
+  el.querySelectorAll('.alt-top, .alt-bottom').forEach((half, i) => {
+    half.style.transition = 'none';
+    half.style.transform = i === 0 ? 'translateY(-100%)' : 'translateY(100%)';
+  });
+  void el.offsetHeight;
+  el.querySelectorAll('.alt-top, .alt-bottom').forEach(half => {
+    half.style.transition = '';
+    half.style.transform = '';
+  });
+}
+
 function rAll(sfx) {
   clearAnimTimers();
   const img = g('teamImgOrig' + sfx);
@@ -156,7 +170,8 @@ function runAnim(sfx) {
     // Fase de label: SAÍDAS / CHEGADAS em destaque
     const tLabelIn = setTimeout(() => {
       const el = g('actAlt' + sfx);
-      if (el) { el.classList.remove('in'); el.classList.add('label-phase'); void el.offsetHeight; }
+      if (el) { el.classList.remove('in'); el.classList.add('label-phase'); }
+      prepAlt(sfx);
       flash(sfx, () => {
         const el2 = g('actAlt' + sfx);
         if (el2) el2.classList.add('in');
@@ -189,7 +204,8 @@ function runAnim(sfx) {
     const tS = setTimeout(() => {
       setAltContent(sfx, alt);
       const el = g('actAlt' + sfx);
-      if (el) { el.classList.remove('in'); void el.offsetHeight; }
+      if (el) el.classList.remove('in');
+      prepAlt(sfx);
       flash(sfx, () => {
         const el2 = g('actAlt' + sfx);
         if (el2) el2.classList.add('in');
