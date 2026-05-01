@@ -96,7 +96,7 @@ textarea { resize: vertical; line-height: 1.55; }
 .alt-top    .alt-player-name { bottom: 10px; }
 .alt-bottom .alt-player-name { top: 10px; }
 .alt-phrase-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; pointer-events: none; max-width: 62%; }
-.alt-phrase-card { background: rgba(4, 0, 14, 0.9); border: 1px solid rgba(217,70,239,0.55); border-radius: 4px; padding: 4px 10px; display: inline-block; box-shadow: 0 0 12px rgba(217,70,239,0.18); }
+.alt-phrase-card { background: rgba(4, 0, 14, 0.9); border: 1px solid rgba(217,70,239,0.55); border-radius: 4px; padding: 4px 10px; display: none; box-shadow: 0 0 12px rgba(217,70,239,0.18); }
 .alt-phrase-text { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2.6cqw; font-weight: 700; color: #e879f9; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0 0 8px rgba(217,70,239,0.5); white-space: normal; word-break: break-word; text-align: center; line-height: 1.35; }
 
 /* Label SAÍDAS / CHEGADAS — fase antes dos jogadores */

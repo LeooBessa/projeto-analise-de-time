@@ -57,7 +57,7 @@ function setAltContent(sfx, alt) {
   const nS   = g('altNameSaida'   + sfx); if (nS)   nS.textContent  = alt.saidaName;
   const nC   = g('altNameChegada' + sfx); if (nC)   nC.textContent  = alt.chegadaName;
   const ph   = g('altPhrase'      + sfx); if (ph)   ph.textContent  = alt.phrase;
-  const phCard = g('altPhraseCard' + sfx); if (phCard) phCard.style.display = alt.phrase ? '' : 'none';
+  const phCard = g('altPhraseCard' + sfx); if (phCard) phCard.style.display = alt.phrase ? 'inline-block' : 'none';
 }
 
 let _animTimers = [];
@@ -139,6 +139,9 @@ function rAll(sfx) {
 
   ids.forEach(id => { const el = g(id + sfx); if (el) el.style.transition = ''; });
   if (altEl) { altEl.querySelectorAll('.alt-top, .alt-bottom').forEach(half => { half.style.transition = ''; }); }
+
+  const phCard = g('altPhraseCard' + sfx);
+  if (phCard) phCard.style.display = 'none';
 }
 
 function prepData(sfx) {
@@ -176,94 +179,77 @@ function prepIntro() {
 function runAnim(sfx) {
   const alts = getAlts();
 
+  // Regra: toda mudança de tela ocorre no callback do flash (380ms após o disparo),
+  // no pico da luz. Nunca em timers independentes do flash.
+  const FLASH_CB  = 380;
+  const LABEL_DUR = 1200;
   const ALT_DUR   = 3500;
   const FINAL_DUR = 3000;
   const CTA_DUR   = 5000;
-  const LABEL_DUR = 1200;
 
-  const T_LABEL   = 300;
-  const T_CONTENT = T_LABEL + (alts.length > 0 ? LABEL_DUR : 0);
-  const T_FINAL   = T_CONTENT + alts.length * ALT_DUR + (alts.length > 0 ? 800 : 300);
-  const T_CTA     = T_FINAL + FINAL_DUR;
-  const TD        = T_CTA + CTA_DUR;
+  const T_ALT_FLASH   = 500;
+  const T_CONTENT     = T_ALT_FLASH + FLASH_CB + LABEL_DUR;
+
+  const T_FINAL_FLASH = alts.length > 0
+    ? T_CONTENT + alts.length * ALT_DUR
+    : T_ALT_FLASH + 300;
+
+  const T_CTA_FLASH = T_FINAL_FLASH + FLASH_CB + FINAL_DUR;
+  const TD          = T_CTA_FLASH   + FLASH_CB + CTA_DUR;
 
   sP(sfx, TD);
-  flash(sfx);
 
-  // Base layer: aparece imediatamente para preencher o espaço entre telas
-  aIn('anlTag'   + sfx, 0);
-  aIn('teamWrap' + sfx, 150);
+  // Flash decorativo de abertura
+  _animTimers.push(setTimeout(() => flash(sfx), 100));
 
   if (alts.length > 0) {
-    // Fase de label: SAÍDAS / CHEGADAS em destaque
-    const tLabelIn = setTimeout(() => {
-      const el = g('actAlt' + sfx);
-      if (el) { el.classList.remove('in'); el.classList.add('label-phase'); }
+    // Flash → fase de label entra (SAÍDAS / CHEGADAS)
+    _animTimers.push(setTimeout(() => {
       prepAlt(sfx);
       flash(sfx, () => {
-        const el2 = g('actAlt' + sfx);
-        if (el2) el2.classList.add('in');
+        const el = g('actAlt' + sfx);
+        if (el) { el.classList.add('label-phase'); el.classList.add('in'); }
       });
-    }, T_LABEL);
-    _animTimers.push(tLabelIn);
+    }, T_ALT_FLASH));
 
-    // Transição para primeira alteração
-    const tLabelOut = setTimeout(() => {
+    // Label → conteúdo da 1ª alt (tela já aberta, sem flash — só troca o conteúdo)
+    _animTimers.push(setTimeout(() => {
       setAltContent(sfx, alts[0]);
       const el = g('actAlt' + sfx);
       if (el) el.classList.remove('label-phase');
-    }, T_CONTENT);
-    _animTimers.push(tLabelOut);
+    }, T_CONTENT));
 
-    // Fim da primeira alteração
-    const tAlt0End = setTimeout(() => {
-      const el = g('actAlt' + sfx);
-      if (el) el.classList.remove('in');
-    }, T_CONTENT + ALT_DUR - 400);
-    _animTimers.push(tAlt0End);
+    // Alterações seguintes: flash → snap + reanima as metades (actAlt mantém .in)
+    alts.forEach((alt, i) => {
+      if (i === 0) return;
+      _animTimers.push(setTimeout(() => {
+        flash(sfx, () => {
+          setAltContent(sfx, alt);
+          prepAlt(sfx);
+        });
+      }, T_CONTENT + i * ALT_DUR));
+    });
   }
 
-  // Alterações a partir da segunda
-  alts.forEach((alt, i) => {
-    if (i === 0) return;
-    const tStart = T_CONTENT + i * ALT_DUR;
-    const tEnd   = tStart + ALT_DUR - 400;
-
-    const tS = setTimeout(() => {
-      setAltContent(sfx, alt);
-      const el = g('actAlt' + sfx);
-      if (el) el.classList.remove('in');
-      prepAlt(sfx);
-      flash(sfx, () => {
-        const el2 = g('actAlt' + sfx);
-        if (el2) el2.classList.add('in');
-      });
-    }, tStart);
-    _animTimers.push(tS);
-
-    const tE = setTimeout(() => {
-      const el = g('actAlt' + sfx);
-      if (el) el.classList.remove('in');
-    }, tEnd);
-    _animTimers.push(tE);
-  });
-
-  const tFinal = setTimeout(() => {
-    flash(sfx, () => { aIn('actFinal' + sfx, 0); });
-  }, T_FINAL);
-  _animTimers.push(tFinal);
-
-  const tCta = setTimeout(() => {
-    const elF = g('actFinal' + sfx); if (elF) elF.classList.remove('in');
+  // Flash → actAlt sai e actFinal entra (no mesmo callback)
+  _animTimers.push(setTimeout(() => {
     flash(sfx, () => {
+      const elA = g('actAlt'   + sfx); if (elA) elA.classList.remove('in');
+      const elF = g('actFinal' + sfx); if (elF) elF.classList.add('in');
+    });
+  }, T_FINAL_FLASH));
+
+  // Flash → actFinal sai e actCta entra
+  _animTimers.push(setTimeout(() => {
+    flash(sfx, () => {
+      const elF = g('actFinal' + sfx); if (elF) elF.classList.remove('in');
       aIn('actCta' + sfx, 0);
       aIn('cTL'    + sfx, 200);
       aIn('cTR'    + sfx, 260);
       aIn('cBL'    + sfx, 320);
       aIn('cBR'    + sfx, 380);
     });
-  }, T_CTA);
-  _animTimers.push(tCta);
+  }, T_CTA_FLASH));
 
   return TD;
 }
