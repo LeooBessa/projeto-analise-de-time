@@ -1,11 +1,32 @@
+/* ===========================================================
+   Análise de Times — gerador de carrossel (TikTok foto)
+   Cada slide é uma imagem estática 1080×1920 (9:16).
+   =========================================================== */
+
 const imgs = {
   orig: null,
   final: null,
   alts: Array.from({ length: 5 }, () => ({ saida: null, chegada: null }))
 };
 
-const FORRAGEM_CLASS = { muito: 'badge-forragem-muito', mediano: 'badge-forragem-mediano', pouco: 'badge-forragem-pouco' };
+const FORRAGEM_CLASS = { muito: 'forr-muito', mediano: 'forr-mediano', pouco: 'forr-pouco' };
 const FORRAGEM_LABEL = { muito: 'Muito', mediano: 'Mediano', pouco: 'Pouco' };
+
+function g(id) { return document.getElementById(id); }
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"]/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]
+  ));
+}
+
+function el(html) {
+  const t = document.createElement('template');
+  t.innerHTML = html.trim();
+  return t.content.firstElementChild;
+}
+
+/* ===== UPLOAD DE IMAGENS ===== */
 
 function onFile(e, type, altIdx, side) {
   const f = e.target.files[0];
@@ -23,6 +44,7 @@ function onFile(e, type, altIdx, side) {
       imgs.alts[altIdx][side] = data;
       showPrev('altPrev_' + altIdx + '_' + side, null, data, null);
     }
+    buildCarousel();
   };
   r.readAsDataURL(f);
 }
@@ -36,310 +58,338 @@ function showPrev(prevId, nameId, src, name) {
   }
 }
 
-function g(id) { return document.getElementById(id); }
+/* ===== COLETA DOS DADOS DO FORMULÁRIO ===== */
 
-function getAlts() {
-  const result = [];
+function val(id) { const e = g(id); return e ? (e.value || '').trim() : ''; }
+
+function collectData() {
+  const alts = [];
   for (let i = 0; i < 5; i++) {
-    const ns = ((g('altSaidaName'   + (i + 1)) || {}).value || '').trim();
-    const nc = ((g('altChegadaName' + (i + 1)) || {}).value || '').trim();
-    if (ns || nc || imgs.alts[i].saida || imgs.alts[i].chegada) {
-      result.push({ saidaName: ns, chegadaName: nc, saidaImg: imgs.alts[i].saida, chegadaImg: imgs.alts[i].chegada });
+    const sn = val('altSaidaName' + (i + 1));
+    const cn = val('altChegadaName' + (i + 1));
+    const an = val('altAnalise' + (i + 1));
+    const si = imgs.alts[i].saida;
+    const ci = imgs.alts[i].chegada;
+    if (sn || cn || an || si || ci) {
+      alts.push({ saidaName: sn, chegadaName: cn, analise: an, saidaImg: si, chegadaImg: ci });
     }
   }
-  return result;
+  const forrKey = (g('fForragem') && g('fForragem').value) || 'mediano';
+  return {
+    ep: val('fEp') || '1',
+    tema: val('fTema'),
+    coins: val('fCoins'),
+    forrKey: forrKey,
+    orig: imgs.orig,
+    final: imgs.final,
+    alts: alts
+  };
 }
 
-function setAltContent(sfx, alt) {
-  const imgS = g('altImgSaida'    + sfx); if (imgS) imgS.src = alt.saidaImg   || '';
-  const imgC = g('altImgChegada'  + sfx); if (imgC) imgC.src = alt.chegadaImg || '';
-  const nS   = g('altNameSaida'   + sfx); if (nS)   nS.textContent = alt.saidaName;
-  const nC   = g('altNameChegada' + sfx); if (nC)   nC.textContent = alt.chegadaName;
+function epPad(ep) { return String(parseInt(ep, 10) || 1).padStart(2, '0'); }
+
+/* ===== FUNDO SVG (um por slide, ids únicos) ===== */
+
+function slideBg(uid) {
+  return `<svg class="bg-svg" viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <defs>
+      <radialGradient id="bgA${uid}" cx="85%" cy="10%" r="55%"><stop offset="0%" stop-color="#7c3aed" stop-opacity="0.45"/><stop offset="100%" stop-color="#08050f" stop-opacity="0"/></radialGradient>
+      <radialGradient id="bgB${uid}" cx="15%" cy="85%" r="50%"><stop offset="0%" stop-color="#d946ef" stop-opacity="0.22"/><stop offset="100%" stop-color="#08050f" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="360" height="640" fill="#08050f"/>
+    <rect width="360" height="640" fill="url(#bgA${uid})"/>
+    <rect width="360" height="640" fill="url(#bgB${uid})"/>
+    <line x1="-60" y1="0" x2="280" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
+    <line x1="40" y1="0" x2="380" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
+    <line x1="140" y1="0" x2="480" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
+    <line x1="240" y1="0" x2="580" y2="640" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.05"/>
+    <polygon points="360,0 360,100 260,0" fill="#8b5cf6" opacity="0.07"/>
+    <polygon points="0,640 100,640 0,540" fill="#d946ef" opacity="0.06"/>
+  </svg>`;
 }
 
-let _animTimers = [];
-function clearAnimTimers() {
-  _animTimers.forEach(t => clearTimeout(t));
-  _animTimers = [];
+/* ===== CONSTRUÇÃO DOS SLIDES ===== */
+
+function capaSlide(d, uid) {
+  const photo = d.orig
+    ? `<img class="capa-team" src="${d.orig}" alt="">`
+    : `<div class="capa-team ph">Foto do time</div>`;
+  const sticker = d.tema
+    ? `<div class="sticker"><span>${esc(d.tema)}</span></div>`
+    : '';
+  return el(`<div class="slide slide-capa">
+    ${slideBg(uid)}
+    <div class="capa-body">
+      <div class="capa-brand">
+        <span class="cb-main">ANÁLISE DE TIMES</span>
+        <span class="cb-sub">Galandinho</span>
+      </div>
+      <div class="capa-head">
+        <div class="ep-badge"><span class="ep-l">EP</span><span class="ep-n">${epPad(d.ep)}</span></div>
+        ${sticker}
+      </div>
+      ${photo}
+      <div class="capa-meta">
+        <div class="badge">💰 ${esc(d.coins || '—')}</div>
+        <div class="badge ${FORRAGEM_CLASS[d.forrKey]}">Forragem: ${FORRAGEM_LABEL[d.forrKey]}</div>
+      </div>
+      <div class="swipe-hint">Arraste para ver a análise <span>→</span></div>
+    </div>
+  </div>`);
 }
 
-function sP(sfx, t) {
-  const b = g('progressBar' + sfx);
-  if (!b) return;
-  b.style.transition = 'none';
-  b.style.width = '0%';
-  let st = null;
-  function step(ts) {
-    if (!st) st = ts;
-    const p = Math.min((ts - st) / t, 1);
-    b.style.width = (p * 100) + '%';
-    if (p < 1) requestAnimationFrame(step);
+function altSlide(d, alt, idx, total, uid) {
+  const sFace = alt.saidaImg ? `<img class="alt-face" src="${alt.saidaImg}" alt="">` : '';
+  const cFace = alt.chegadaImg ? `<img class="alt-face" src="${alt.chegadaImg}" alt="">` : '';
+  const verdict = alt.analise
+    ? `<div class="alt-verdict">
+         <div class="verdict-label">Por quê?</div>
+         <div class="verdict-text">${esc(alt.analise)}</div>
+       </div>`
+    : '';
+  return el(`<div class="slide slide-alt ${alt.analise ? '' : 'no-verdict'}">
+    ${slideBg(uid)}
+    <div class="alt-pill">Alteração ${idx + 1} <span>/ ${total}</span></div>
+    <div class="alt-half alt-top">
+      <div class="alt-row">
+        ${sFace}
+        <div class="alt-info">
+          <div class="alt-tag tag-out"><span class="ico">✕</span> Saiu</div>
+          <div class="alt-name">${esc(alt.saidaName || '—')}</div>
+        </div>
+      </div>
+    </div>
+    <div class="alt-half alt-bottom">
+      <div class="alt-row">
+        ${cFace}
+        <div class="alt-info">
+          <div class="alt-tag tag-in"><span class="ico">✓</span> Chegou</div>
+          <div class="alt-name">${esc(alt.chegadaName || '—')}</div>
+        </div>
+      </div>
+    </div>
+    ${verdict}
+  </div>`);
+}
+
+function finalSlide(d, uid) {
+  const photo = d.final
+    ? `<img class="final-img" src="${d.final}" alt="">`
+    : `<div class="final-img ph">Foto do time final</div>`;
+  return el(`<div class="slide slide-final">
+    ${slideBg(uid)}
+    <div class="final-body">
+      <div class="final-label">Time Analisado</div>
+      ${photo}
+      <div class="final-sub">EP ${epPad(d.ep)} · Galandinho</div>
+    </div>
+  </div>`);
+}
+
+function ctaSlide(uid) {
+  return el(`<div class="slide slide-cta">
+    ${slideBg(uid)}
+    <div class="corner tl"></div><div class="corner tr"></div>
+    <div class="corner bl"></div><div class="corner br"></div>
+    <div class="cta-body">
+      <div class="cta-q">QUER TER SEU TIME ANALISADO?</div>
+      <div class="cta-line"></div>
+      <div class="cta-free">GRATUITO</div>
+      <div class="cta-dm">Só me chamar na DM!</div>
+    </div>
+  </div>`);
+}
+
+/* ===== CARROSSEL ===== */
+
+let currentNodes = [];
+let exportCache = { files: null };
+
+function buildCarousel() {
+  const d = collectData();
+  const nodes = [];
+  let uid = 0;
+  nodes.push(capaSlide(d, uid++));
+  d.alts.forEach((alt, i) => nodes.push(altSlide(d, alt, i, d.alts.length, uid++)));
+  nodes.push(finalSlide(d, uid++));
+  nodes.push(ctaSlide(uid++));
+  currentNodes = nodes;
+  exportCache.files = null; // dados mudaram → invalida render
+
+  const carousel = g('carousel');
+  const prevIdx = currentIndex();
+  carousel.innerHTML = '';
+  nodes.forEach(n => {
+    const item = document.createElement('div');
+    item.className = 'carousel-item';
+    item.appendChild(n);
+    carousel.appendChild(item);
+  });
+
+  buildDots(nodes.length);
+
+  const idx = Math.min(Math.max(prevIdx, 0), nodes.length - 1);
+  carousel.scrollLeft = idx * carousel.clientWidth;
+  updateActive();
+}
+
+function currentIndex() {
+  const c = g('carousel');
+  if (!c || !c.clientWidth) return 0;
+  return Math.round(c.scrollLeft / c.clientWidth);
+}
+
+function buildDots(n) {
+  const dots = g('dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'cdot';
+    dots.appendChild(dot);
   }
-  requestAnimationFrame(step);
 }
 
-function flashEl(el, cb) {
-  if (!el) { if (cb) setTimeout(cb, 380); return; }
-  el.classList.remove('scanning');
-  void el.offsetHeight;
-  el.classList.add('scanning');
-  if (cb) setTimeout(cb, 380);
-  setTimeout(() => el.classList.remove('scanning'), 750);
+function updateActive() {
+  const total = currentNodes.length;
+  const idx = Math.min(currentIndex(), total - 1);
+  g('counter').textContent = (idx + 1) + ' / ' + total;
+  const dots = g('dots').children;
+  for (let i = 0; i < dots.length; i++) {
+    dots[i].classList.toggle('active', i === idx);
+  }
 }
 
-function flash(sfx, cb) {
-  const f = g('flash' + sfx);
-  if (!f) { if (cb) setTimeout(cb, 380); return; }
-  f.classList.remove('scanning');
-  void f.offsetHeight;
-  f.classList.add('scanning');
-  if (cb) setTimeout(cb, 380);
-  setTimeout(() => f.classList.remove('scanning'), 750);
+function goTo(delta) {
+  const c = g('carousel');
+  const idx = Math.min(Math.max(currentIndex() + delta, 0), currentNodes.length - 1);
+  c.scrollTo({ left: idx * c.clientWidth, behavior: 'smooth' });
 }
 
-function aIn(id, d) {
-  const t = setTimeout(() => { const el = g(id); if (el) el.classList.add('in'); }, d);
-  _animTimers.push(t);
-}
+/* ===== EXPORTAÇÃO (DOM → PNG 1080×1920) ===== */
 
-function prepAlt(sfx) {
-  const el = g('actAlt' + sfx);
-  if (!el) return;
-  el.querySelectorAll('.alt-top, .alt-bottom').forEach((half, i) => {
-    half.style.transition = 'none';
-    half.style.transform = i === 0 ? 'translateY(-100%)' : 'translateY(100%)';
-  });
-  void el.offsetHeight;
-  el.querySelectorAll('.alt-top, .alt-bottom').forEach(half => {
-    half.style.transition = '';
-    half.style.transform = '';
-  });
-}
+function setHint(msg) { g('hint').innerHTML = msg; }
 
-function rAll(sfx) {
-  clearAnimTimers();
-  const img = g('teamImgOrig' + sfx);
-  if (img && imgs.orig) img.src = imgs.orig;
+async function renderNode(node) {
+  const stage = g('exportStage');
+  stage.innerHTML = '';
+  const clone = node.cloneNode(true);
+  stage.appendChild(clone);
 
-  const ids = ['anlTag', 'teamWrap', 'actAlt', 'actFinal', 'actCta', 'cTL', 'cTR', 'cBL', 'cBR'];
+  // aguarda as imagens decodificarem dentro do clone
+  const imgEls = Array.prototype.slice.call(clone.querySelectorAll('img'));
+  await Promise.all(imgEls.map(im => (
+    im.complete ? Promise.resolve() : new Promise(res => { im.onload = im.onerror = res; })
+  )));
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-  // Snap: disable transitions before removing classes so there's no fade flicker on reset
-  ids.forEach(id => { const el = g(id + sfx); if (el) el.style.transition = 'none'; });
-
-  const altEl = g('actAlt' + sfx);
-  if (altEl) {
-    altEl.querySelectorAll('.alt-top, .alt-bottom').forEach((half, i) => {
-      half.style.transition = 'none';
-      half.style.transform = i === 0 ? 'translateY(-100%)' : 'translateY(100%)';
+  let blob = null;
+  try {
+    blob = await htmlToImage.toBlob(clone, {
+      width: 1080, height: 1920, pixelRatio: 1, backgroundColor: '#08050f'
     });
+  } finally {
+    stage.innerHTML = '';
   }
-
-  ids.forEach(id => {
-    const el = g(id + sfx);
-    if (!el) return;
-    el.classList.remove('in');
-    el.classList.remove('label-phase');
-  });
-
-  void document.body.offsetHeight; // force reflow so snap applies
-
-  ids.forEach(id => { const el = g(id + sfx); if (el) el.style.transition = ''; });
-  if (altEl) { altEl.querySelectorAll('.alt-top, .alt-bottom').forEach(half => { half.style.transition = ''; }); }
+  return blob;
 }
 
-function prepData(sfx) {
-  const imgOrig = g('teamImgOrig' + sfx);
-  if (imgOrig && imgs.orig) imgOrig.src = imgs.orig;
-  const imgFinal = g('finalTeamImg' + sfx);
-  if (imgFinal && imgs.final) imgFinal.src = imgs.final;
-}
-
-function prepIntro() {
-  const coinsEl = g('fCoins');
-  const cBadge  = g('introCoinsBadge');
-  if (cBadge) cBadge.textContent = '💰 ' + (coinsEl ? coinsEl.value.trim() || '—' : '—');
-
-  const fForragemEl = g('fForragem');
-  const fBadge      = g('introForragemBadge');
-  if (fBadge && fForragemEl) {
-    const fKey = fForragemEl.value;
-    fBadge.textContent = 'Forragem: ' + FORRAGEM_LABEL[fKey];
-    fBadge.className = 'intro-badge-item ' + FORRAGEM_CLASS[fKey];
+async function renderAll() {
+  if (document.fonts && document.fonts.ready) {
+    try { await document.fonts.ready; } catch (e) { /* segue */ }
   }
-
-  const tema        = g('fTema') ? g('fTema').value.trim() : '';
-  const stickerText = g('stickerText');
-  const stickerWrap = g('stickerWrap');
-  if (stickerText) stickerText.textContent = tema;
-  if (stickerWrap) stickerWrap.style.display = tema ? '' : 'none';
-
-  const epNum   = parseInt((g('fEp') && g('fEp').value.trim()) || '1');
-  const epPad   = String(epNum).padStart(2, '0');
-  const epBadge = g('epIntroBadge');
-  if (epBadge) epBadge.innerHTML = '<span class="ep-label">EP</span><span class="ep-num">' + epPad + '</span><span class="ep-arrow">▸</span>';
-}
-
-// skipFirst=true: openFullscreen já entrou na fase de label via flashTopFS,
-// runAnim só gerencia os timers a partir do conteúdo da 1ª alt.
-function runAnim(sfx, skipFirst) {
-  const alts = getAlts();
-
-  const FLASH_CB  = 380;
-  const LABEL_DUR = 1200;
-  const ALT_DUR   = 3500;
-  const FINAL_DUR = 3000;
-  const CTA_DUR   = 5000;
-  const T_ALT_FLASH = 100;
-
-  // skipFirst: label já foi mostrada em t=0 (pelo flashTopFS), conteúdo aparece após LABEL_DUR.
-  // !skipFirst (preview): flash dispara em T_ALT_FLASH, label entra no callback, conteúdo após +LABEL_DUR.
-  const T_CONTENT = skipFirst
-    ? LABEL_DUR
-    : T_ALT_FLASH + FLASH_CB + LABEL_DUR;
-
-  const T_FINAL_FLASH = alts.length > 0
-    ? T_CONTENT + alts.length * ALT_DUR
-    : (skipFirst ? 500 : T_ALT_FLASH + 300);
-
-  const T_CTA_FLASH = T_FINAL_FLASH + FLASH_CB + FINAL_DUR;
-  const TD          = T_CTA_FLASH   + FLASH_CB + CTA_DUR;
-
-  sP(sfx, TD);
-
-  if (alts.length > 0) {
-    if (!skipFirst) {
-      // Preview: flash → fase de label entra
-      _animTimers.push(setTimeout(() => {
-        prepAlt(sfx);
-        flash(sfx, () => {
-          const el = g('actAlt' + sfx);
-          if (el) { el.classList.add('label-phase'); el.classList.add('in'); }
-        });
-      }, T_ALT_FLASH));
+  const files = [];
+  for (let i = 0; i < currentNodes.length; i++) {
+    const blob = await renderNode(currentNodes[i]);
+    if (blob) {
+      const name = 'slide-' + String(i + 1).padStart(2, '0') + '.png';
+      files.push(new File([blob], name, { type: 'image/png' }));
     }
-
-    // Label → conteúdo da 1ª alt (sem flash — tela já está aberta)
-    _animTimers.push(setTimeout(() => {
-      setAltContent(sfx, alts[0]);
-      const el = g('actAlt' + sfx);
-      if (el) el.classList.remove('label-phase');
-    }, T_CONTENT));
-
-    // Alterações seguintes: flash → snap + reanima as metades
-    alts.forEach((alt, i) => {
-      if (i === 0) return;
-      _animTimers.push(setTimeout(() => {
-        flash(sfx, () => {
-          setAltContent(sfx, alt);
-          prepAlt(sfx);
-        });
-      }, T_CONTENT + i * ALT_DUR));
-    });
   }
-
-  // Flash → actAlt sai e actFinal entra (no mesmo callback)
-  _animTimers.push(setTimeout(() => {
-    flash(sfx, () => {
-      const elA = g('actAlt'   + sfx); if (elA) elA.classList.remove('in');
-      const elF = g('actFinal' + sfx); if (elF) elF.classList.add('in');
-    });
-  }, T_FINAL_FLASH));
-
-  // Flash → actFinal sai e actCta entra
-  _animTimers.push(setTimeout(() => {
-    flash(sfx, () => {
-      const elF = g('actFinal' + sfx); if (elF) elF.classList.remove('in');
-      aIn('actCta' + sfx, 0);
-      aIn('cTL'    + sfx, 200);
-      aIn('cTR'    + sfx, 260);
-      aIn('cBL'    + sfx, 320);
-      aIn('cBR'    + sfx, 380);
-    });
-  }, T_CTA_FLASH));
-
-  return TD;
+  return files;
 }
 
-function playAnimation() {
-  rAll('');
-  prepData('');
-  setTimeout(() => runAnim(''), 100);
+function downloadBlob(file) {
+  const url = URL.createObjectURL(file);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = file.name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
-function replay() {
-  rAll('');
-  prepData('');
-  setTimeout(() => runAnim(''), 100);
-}
-
-let _fsCloseTimer = null;
-
-function openFullscreen() {
-  rAll('FS');
-  prepData('FS');
-  prepIntro();
-
-  if (_fsCloseTimer) clearTimeout(_fsCloseTimer);
-  const fsClose = g('fsClose');
-  if (fsClose) fsClose.style.display = 'none';
-
-  const wrap = g('fsSceneWrap');
-  const sw = window.innerWidth, sh = window.innerHeight;
-  if (sw / sh > 9 / 16) {
-    wrap.style.height = sh + 'px';
-    wrap.style.width  = (sh * 9 / 16) + 'px';
-  } else {
-    wrap.style.width  = sw + 'px';
-    wrap.style.height = (sw * 16 / 9) + 'px';
-  }
-
-  const introTeam = g('introTeamImg');
-  if (introTeam) introTeam.src = imgs.orig || '';
-  g('fsOverlay').classList.add('open');
-
-  const intro   = g('fsIntro');
-  const epBadge = g('epIntroBadge');
-  const sticker = g('stickerWrap');
-  const cBadge  = g('introCoinsBadge');
-  const fBadge  = g('introForragemBadge');
-
-  setTimeout(() => {
-    if (intro)   intro.classList.add('in');
-    if (epBadge) epBadge.classList.add('in');
-    if (sticker) sticker.classList.add('in');
-    if (cBadge)  cBadge.classList.add('in');
-    if (fBadge)  fBadge.classList.add('in');
-  }, 50);
-
-  // flashTopFS (z-index 250, acima da intro) serve como o único flash da transição intro→alt.
-  // No callback: remove a intro E entra na fase de label — sem disparar outro flash na cena.
-  setTimeout(() => {
-    flashEl(g('flashTopFS'), () => {
-      if (intro)   intro.classList.remove('in');
-      if (epBadge) epBadge.classList.remove('in');
-      if (sticker) sticker.classList.remove('in');
-      if (cBadge)  cBadge.classList.remove('in');
-      if (fBadge)  fBadge.classList.remove('in');
-
-      // Entra na fase de label direto (flashTopFS já foi o flash de transição)
-      const alts = getAlts();
-      if (alts.length > 0) {
-        prepAlt('FS');
-        const el = g('actAltFS');
-        if (el) { el.classList.add('label-phase'); el.classList.add('in'); }
+async function shareOrDownload(files) {
+  if (navigator.canShare && navigator.canShare({ files: files })) {
+    try {
+      await navigator.share({ files: files, title: 'Análise de Times' });
+      setHint('Pronto! Escolha <b>Salvar imagens</b> para mandar tudo pra galeria.');
+    } catch (e) {
+      if (e && e.name === 'NotAllowedError') {
+        setHint('Imagens prontas — toque em <b>Salvar slides</b> mais uma vez.');
       }
-
-      // runAnim começa já sabendo que a fase de label foi iniciada (skipFirst=true)
-      const td = runAnim('FS', true);
-      _fsCloseTimer = setTimeout(() => {
-        const fc = g('fsClose');
-        if (fc) fc.style.display = 'block';
-      }, td + 200);
-    });
-  }, 1200);
+      /* se o usuário cancelou, não faz nada */
+    }
+  } else {
+    files.forEach(downloadBlob);
+    setHint('Slides baixados. No celular, use o botão de novo para abrir o compartilhamento.');
+  }
 }
 
-function closeFullscreen() {
-  g('fsOverlay').classList.remove('open');
-  if (_fsCloseTimer) clearTimeout(_fsCloseTimer);
+async function onSaveClick() {
+  const btn = g('saveBtn');
+  if (btn.classList.contains('busy')) return;
+
+  if (typeof htmlToImage === 'undefined') {
+    setHint('A biblioteca de imagens não carregou. Verifique a internet e recarregue a página.');
+    return;
+  }
+
+  let files = exportCache.files;
+  if (!files) {
+    btn.classList.add('busy');
+    btn.textContent = '⏳ Gerando…';
+    try {
+      files = await renderAll();
+      exportCache.files = files;
+    } catch (e) {
+      setHint('Erro ao gerar as imagens: ' + (e && e.message ? e.message : e));
+      return;
+    } finally {
+      btn.classList.remove('busy');
+      btn.textContent = '⤓ Salvar slides';
+    }
+  }
+  await shareOrDownload(files);
+}
+
+/* ===== INICIALIZAÇÃO ===== */
+
+function debounce(fn, ms) {
+  let t;
+  return function () { clearTimeout(t); t = setTimeout(fn, ms); };
+}
+
+function init() {
+  g('genBtn').addEventListener('click', buildCarousel);
+  g('saveBtn').addEventListener('click', onSaveClick);
+  g('prevBtn').addEventListener('click', () => goTo(-1));
+  g('nextBtn').addEventListener('click', () => goTo(1));
+  g('carousel').addEventListener('scroll', debounce(updateActive, 60));
+
+  // rebuild ao sair de um campo de texto / mudar o select
+  document.querySelector('.form-grid').addEventListener('change', buildCarousel);
+
+  window.addEventListener('resize', debounce(() => {
+    const c = g('carousel');
+    c.scrollLeft = currentIndex() * c.clientWidth;
+  }, 150));
+
+  buildCarousel();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
 }

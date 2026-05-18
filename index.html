@@ -14,7 +14,7 @@
     <div class="form-col">
       <div>
         <div class="app-logo">Análise de Times</div>
-        <div class="app-sub">Galandinho</div>
+        <div class="app-sub">Galandinho · Carrossel</div>
       </div>
 
       <div class="sec">Time Original</div>
@@ -45,7 +45,7 @@
       <div class="divider"></div>
       <div class="sec">Chamada</div>
       <div class="fg">
-        <div class="fl">Adesivo da Tela 1 — gancho do vídeo</div>
+        <div class="fl">Adesivo da capa — gancho do post</div>
         <input id="fTema" placeholder="ex: ESSE TIME TÁ HORRÍVEL 😱" />
       </div>
 
@@ -86,6 +86,9 @@
           <div class="upload-text">Foto do card (opcional)</div>
           <img class="upload-preview" id="altPrev_0_chegada" alt="" />
         </div>
+        <div class="fg"><div class="fl">Análise / motivo da troca</div>
+          <textarea id="altAnalise1" rows="2" placeholder="ex: saiu por baixa minutagem; chega titular absoluto e melhora a defesa"></textarea>
+        </div>
       </div>
 
       <!-- Alteração 2 -->
@@ -104,6 +107,9 @@
           <input type="file" accept="image/*" onchange="onFile(event,'alt',1,'chegada')" />
           <div class="upload-text">Foto do card (opcional)</div>
           <img class="upload-preview" id="altPrev_1_chegada" alt="" />
+        </div>
+        <div class="fg"><div class="fl">Análise / motivo da troca</div>
+          <textarea id="altAnalise2" rows="2" placeholder="ex: saiu por baixa minutagem; chega titular absoluto e melhora a defesa"></textarea>
         </div>
       </div>
 
@@ -124,6 +130,9 @@
           <div class="upload-text">Foto do card (opcional)</div>
           <img class="upload-preview" id="altPrev_2_chegada" alt="" />
         </div>
+        <div class="fg"><div class="fl">Análise / motivo da troca</div>
+          <textarea id="altAnalise3" rows="2" placeholder="ex: saiu por baixa minutagem; chega titular absoluto e melhora a defesa"></textarea>
+        </div>
       </div>
 
       <!-- Alteração 4 -->
@@ -142,6 +151,9 @@
           <input type="file" accept="image/*" onchange="onFile(event,'alt',3,'chegada')" />
           <div class="upload-text">Foto do card (opcional)</div>
           <img class="upload-preview" id="altPrev_3_chegada" alt="" />
+        </div>
+        <div class="fg"><div class="fl">Análise / motivo da troca</div>
+          <textarea id="altAnalise4" rows="2" placeholder="ex: saiu por baixa minutagem; chega titular absoluto e melhora a defesa"></textarea>
         </div>
       </div>
 
@@ -162,201 +174,41 @@
           <div class="upload-text">Foto do card (opcional)</div>
           <img class="upload-preview" id="altPrev_4_chegada" alt="" />
         </div>
+        <div class="fg"><div class="fl">Análise / motivo da troca</div>
+          <textarea id="altAnalise5" rows="2" placeholder="ex: saiu por baixa minutagem; chega titular absoluto e melhora a defesa"></textarea>
+        </div>
       </div>
 
     </div>
 
-    <!-- COLUNA 3: Preview -->
+    <!-- COLUNA 3: Carrossel -->
     <div class="form-col">
-      <div class="sec">Preview</div>
-      <div class="scene-preview" id="scenePreview" onclick="replay()">
+      <div class="sec">Carrossel</div>
 
-        <!-- Background SVG -->
-        <svg class="bg-svg" viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="bg1" cx="85%" cy="10%" r="55%"><stop offset="0%" stop-color="#7c3aed" stop-opacity="0.45"/><stop offset="100%" stop-color="#08050f" stop-opacity="0"/></radialGradient>
-            <radialGradient id="bg2" cx="15%" cy="85%" r="50%"><stop offset="0%" stop-color="#d946ef" stop-opacity="0.22"/><stop offset="100%" stop-color="#08050f" stop-opacity="0"/></radialGradient>
-          </defs>
-          <rect width="360" height="640" fill="#08050f"/>
-          <rect width="360" height="640" fill="url(#bg1)"/>
-          <rect width="360" height="640" fill="url(#bg2)"/>
-          <line x1="-60" y1="0" x2="280" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
-          <line x1="40" y1="0" x2="380" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
-          <line x1="140" y1="0" x2="480" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
-          <line x1="240" y1="0" x2="580" y2="640" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.05"/>
-          <line x1="-160" y1="0" x2="180" y2="640" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.04"/>
-          <polygon points="360,0 360,100 260,0" fill="#8b5cf6" opacity="0.07"/>
-          <polygon points="0,640 100,640 0,540" fill="#d946ef" opacity="0.06"/>
-          <polygon points="310,300 330,320 310,340 290,320" fill="none" stroke="#d946ef" stroke-width="0.8" stroke-opacity="0.12"/>
-          <polygon points="310,285 345,320 310,355 275,320" fill="none" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.07"/>
-        </svg>
+      <div class="carousel" id="carousel"><!-- slides injetados via JS --></div>
 
-        <div class="flash-overlay" id="flash"></div>
-        <div class="progress-bar" id="progressBar"></div>
-
-        <!-- Tela 1: base layer -->
-        <div class="analis-tag" id="anlTag">
-          <div class="analis-main">ANÁLISE DE TIMES</div>
-        </div>
-        <div class="team-wrap" id="teamWrap">
-          <img class="team-img" id="teamImgOrig" src="" alt="" />
-        </div>
-        <div class="meta-badges" id="metaBadges">
-          <div class="badge" id="badgeCoins">💰 —</div>
-          <div class="badge" id="badgeForragem">Forragem: —</div>
-        </div>
-
-        <!-- Tela 2: Alteração split-screen -->
-        <div class="act-screen act-alteration" id="actAlt">
-          <div class="alt-top">
-            <div class="alt-section-label">SAÍDAS</div>
-            <img class="alt-player-img" id="altImgSaida" src="" alt="" />
-            <div class="alt-player-name" id="altNameSaida"></div>
-          </div>
-          <div class="alt-bottom">
-            <div class="alt-section-label">CHEGADAS</div>
-            <img class="alt-player-img" id="altImgChegada" src="" alt="" />
-            <div class="alt-player-name" id="altNameChegada"></div>
-          </div>
-        </div>
-
-        <!-- Tela 3: Time Analisado -->
-        <div class="act-screen act-final" id="actFinal">
-          <div class="act-final-bg"></div>
-          <div class="act-final-content">
-            <div class="act-final-label">TIME ANALISADO</div>
-            <img class="act-final-img" id="finalTeamImg" src="" alt="" />
-          </div>
-        </div>
-
-        <!-- Tela 4: CTA -->
-        <div class="act-screen act-cta" id="actCta">
-          <div class="cta-bg"></div>
-          <div class="corner tl" id="cTL"></div>
-          <div class="corner tr" id="cTR"></div>
-          <div class="corner bl" id="cBL"></div>
-          <div class="corner br" id="cBR"></div>
-          <div class="cta-content">
-            <div class="cta-question">QUER TER SEU TIME ANALISADO?</div>
-            <div class="cta-line" id="ctaLine"></div>
-            <div class="cta-free"><span class="cf-l">G</span><span class="cf-l">R</span><span class="cf-l">A</span><span class="cf-l">T</span><span class="cf-l">U</span><span class="cf-l">I</span><span class="cf-l">T</span><span class="cf-l">O</span></div>
-            <div class="cta-dm">SÓ ME CHAMAR NA DM!</div>
-          </div>
-        </div>
-
-      </div><!-- /scene-preview -->
+      <div class="carousel-nav">
+        <div class="cnav-btn" id="prevBtn">‹</div>
+        <div class="carousel-counter" id="counter">1 / 1</div>
+        <div class="cnav-btn" id="nextBtn">›</div>
+      </div>
+      <div class="carousel-dots" id="dots"></div>
 
       <div class="action-row">
-        <div class="play-btn" onclick="playAnimation()">▶ Gerar Animação</div>
-        <div class="fullscreen-btn" onclick="openFullscreen()">⛶ Tela Cheia</div>
+        <div class="gen-btn" id="genBtn">↻ Gerar slides</div>
+        <div class="save-btn" id="saveBtn">⤓ Salvar slides</div>
       </div>
-    </div><!-- /form-col 3 -->
+
+      <div class="hint" id="hint">Preencha os dados, gere os slides e toque em <b>Salvar slides</b>. No celular, escolha <b>Salvar imagens</b> — depois, no TikTok: Criar → Foto → galeria.</div>
+    </div>
 
   </div><!-- /form-grid -->
 </div><!-- /app -->
 
-<!-- ===== FULLSCREEN OVERLAY ===== -->
-<div class="fs-overlay" id="fsOverlay">
-  <div class="fs-close" id="fsClose" onclick="closeFullscreen()">✕ Fechar</div>
-  <div class="fs-scene-wrap" id="fsSceneWrap">
+<!-- Palco invisível usado só para renderizar os slides em 1080×1920 -->
+<div class="export-stage" id="exportStage" aria-hidden="true"></div>
 
-    <!-- Flash acima da intro para cobrir a transição intro → alterações -->
-    <div class="flash-overlay" id="flashTopFS" style="z-index:250;position:absolute;"></div>
-
-    <!-- Intro inside the 9:16 canvas so % values respect TikTok safe zones -->
-    <div class="fs-intro" id="fsIntro">
-      <div class="fs-intro-content">
-        <div class="fs-intro-above-photo">
-          <div class="ep-intro-badge" id="epIntroBadge"></div>
-          <div class="sticker-wrap" id="stickerWrap"><div class="sticker-text" id="stickerText"></div></div>
-        </div>
-        <img class="fs-intro-team" id="introTeamImg" src="" alt="" />
-        <div class="fs-intro-meta">
-          <div class="intro-badge-item" id="introCoinsBadge">💰 —</div>
-          <div class="intro-badge-item" id="introForragemBadge">Forragem: —</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="scene-preview" id="sceneFS" style="border-radius:0;width:100%;height:100%">
-
-      <!-- Background SVG FS -->
-      <svg class="bg-svg" viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="bg1fs" cx="85%" cy="10%" r="55%"><stop offset="0%" stop-color="#7c3aed" stop-opacity="0.45"/><stop offset="100%" stop-color="#08050f" stop-opacity="0"/></radialGradient>
-          <radialGradient id="bg2fs" cx="15%" cy="85%" r="50%"><stop offset="0%" stop-color="#d946ef" stop-opacity="0.22"/><stop offset="100%" stop-color="#08050f" stop-opacity="0"/></radialGradient>
-        </defs>
-        <rect width="360" height="640" fill="#08050f"/>
-        <rect width="360" height="640" fill="url(#bg1fs)"/>
-        <rect width="360" height="640" fill="url(#bg2fs)"/>
-        <line x1="-60" y1="0" x2="280" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
-        <line x1="40" y1="0" x2="380" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
-        <line x1="140" y1="0" x2="480" y2="640" stroke="#d946ef" stroke-width="0.5" stroke-opacity="0.05"/>
-        <line x1="240" y1="0" x2="580" y2="640" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.05"/>
-        <line x1="-160" y1="0" x2="180" y2="640" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.04"/>
-        <polygon points="360,0 360,100 260,0" fill="#8b5cf6" opacity="0.07"/>
-        <polygon points="0,640 100,640 0,540" fill="#d946ef" opacity="0.06"/>
-        <polygon points="310,300 330,320 310,340 290,320" fill="none" stroke="#d946ef" stroke-width="0.8" stroke-opacity="0.12"/>
-        <polygon points="310,285 345,320 310,355 275,320" fill="none" stroke="#8b5cf6" stroke-width="0.5" stroke-opacity="0.07"/>
-      </svg>
-
-      <div class="flash-overlay" id="flashFS"></div>
-      <div class="progress-bar" id="progressBarFS"></div>
-
-      <!-- Tela 1 FS -->
-      <div class="analis-tag" id="anlTagFS">
-        <div class="analis-main">ANÁLISE DE TIMES</div>
-      </div>
-      <div class="team-wrap" id="teamWrapFS">
-        <img class="team-img" id="teamImgOrigFS" src="" alt="" />
-      </div>
-      <div class="meta-badges" id="metaBadgesFS">
-        <div class="badge" id="badgeCoinsFS">💰 —</div>
-        <div class="badge" id="badgeForragemFS">Forragem: —</div>
-      </div>
-
-      <!-- Tela 2 FS: Alteração split-screen -->
-      <div class="act-screen act-alteration" id="actAltFS">
-        <div class="alt-top">
-          <div class="alt-section-label">SAÍDAS</div>
-          <img class="alt-player-img" id="altImgSaidaFS" src="" alt="" />
-          <div class="alt-player-name" id="altNameSaidaFS"></div>
-        </div>
-        <div class="alt-bottom">
-          <div class="alt-section-label">CHEGADAS</div>
-          <img class="alt-player-img" id="altImgChegadaFS" src="" alt="" />
-          <div class="alt-player-name" id="altNameChegadaFS"></div>
-        </div>
-      </div>
-
-      <!-- Tela 3 FS: Time Analisado -->
-      <div class="act-screen act-final" id="actFinalFS">
-        <div class="act-final-bg"></div>
-        <div class="act-final-content">
-          <div class="act-final-label">TIME ANALISADO</div>
-          <img class="act-final-img" id="finalTeamImgFS" src="" alt="" />
-        </div>
-      </div>
-
-      <!-- Tela 4 FS: CTA -->
-      <div class="act-screen act-cta" id="actCtaFS">
-        <div class="cta-bg"></div>
-        <div class="corner tl" id="cTLFS"></div>
-        <div class="corner tr" id="cTRFS"></div>
-        <div class="corner bl" id="cBLFS"></div>
-        <div class="corner br" id="cBRFS"></div>
-        <div class="cta-content">
-          <div class="cta-question">QUER TER SEU TIME ANALISADO?</div>
-          <div class="cta-line" id="ctaLineFS"></div>
-          <div class="cta-free"><span class="cf-l">G</span><span class="cf-l">R</span><span class="cf-l">A</span><span class="cf-l">T</span><span class="cf-l">U</span><span class="cf-l">I</span><span class="cf-l">T</span><span class="cf-l">O</span></div>
-          <div class="cta-dm">SÓ ME CHAMAR NA DM!</div>
-        </div>
-      </div>
-
-    </div><!-- /sceneFS -->
-  </div>
-</div><!-- /fsOverlay -->
-
-<script src="js/script.js?v=4"></script>
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.13/dist/html-to-image.js"></script>
+<script src="js/script.js?v=5"></script>
 </body>
 </html>
