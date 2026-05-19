@@ -157,15 +157,9 @@ function altSlide(d, alt, uid) {
   return el(`<div class="slide slide-alt">
     ${slideBg(uid)}
     <div class="alt-body">
-      <div class="alt-side out">
-        <div class="alt-photo-wrap">${outPhoto}</div>
-        ${outText}
-      </div>
+      <div class="alt-side out">${outPhoto}${outText}</div>
       <div class="alt-divider"></div>
-      <div class="alt-side in">
-        <div class="alt-photo-wrap">${inPhoto}</div>
-        ${inText}
-      </div>
+      <div class="alt-side in">${inPhoto}${inText}</div>
     </div>
   </div>`);
 }

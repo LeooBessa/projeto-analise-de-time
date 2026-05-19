@@ -86,15 +86,15 @@ textarea { resize: vertical; line-height: 1.55; }
 .swipe-hint span { display: inline-block; color: #d946ef; }
 
 /* ===== SLIDE — ALTERAÇÃO (saiu / chegou: foto + texto) ===== */
-.alt-body { position: absolute; inset: 0; padding: 6cqw 7cqw 22cqw; display: flex; flex-direction: column; z-index: 2; }
+.alt-body { position: absolute; inset: 0; padding: 5cqw 7cqw 22cqw; display: flex; flex-direction: column; z-index: 2; }
 .alt-side { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3cqw; }
-.alt-divider { flex: none; height: 0.55cqw; border-radius: 1cqw; margin: 3cqw 0; background: linear-gradient(90deg, rgba(248,113,113,0.6), rgba(217,70,239,0.45), rgba(74,222,128,0.6)); }
-.alt-photo-wrap { flex: 1; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; }
-.alt-photo { max-height: 100%; max-width: 72cqw; object-fit: contain; border-radius: 3cqw; }
-.alt-photo.out { border: 0.5cqw solid rgba(248,113,113,0.9); box-shadow: 0 0 7cqw rgba(248,113,113,0.5), 0 0 2cqw rgba(248,113,113,0.9); }
-.alt-photo.in  { border: 0.5cqw solid rgba(74,222,128,0.9);  box-shadow: 0 0 7cqw rgba(74,222,128,0.5),  0 0 2cqw rgba(74,222,128,0.9); }
-.alt-photo.ph { width: 52cqw; height: 62cqw; font-size: 3.6cqw; }
-.alt-text { flex: none; font-size: 3.7cqw; line-height: 1.45; color: #ede9fe; text-align: center; white-space: pre-wrap; max-width: 94cqw; }
+.alt-divider { flex: none; height: 0.55cqw; border-radius: 1cqw; margin: 2.5cqw 0; background: linear-gradient(90deg, rgba(248,113,113,0.6), rgba(217,70,239,0.45), rgba(74,222,128,0.6)); }
+/* max-height em cqw (não em %) — resolve sempre, independente do flex, e impede a foto de estourar o slide */
+.alt-photo { flex: none; max-width: 60cqw; max-height: 46cqw; object-fit: contain; border-radius: 3cqw; }
+.alt-photo.out { border: 0.5cqw solid rgba(248,113,113,0.9); box-shadow: 0 0 6cqw rgba(248,113,113,0.5), 0 0 1.5cqw rgba(248,113,113,0.9); }
+.alt-photo.in  { border: 0.5cqw solid rgba(74,222,128,0.9);  box-shadow: 0 0 6cqw rgba(74,222,128,0.5),  0 0 1.5cqw rgba(74,222,128,0.9); }
+.alt-photo.ph { width: 40cqw; height: 46cqw; font-size: 3.4cqw; }
+.alt-text { flex: none; max-width: 92cqw; background: rgba(10,7,20,0.92); border: 1px solid rgba(217,70,239,0.4); border-radius: 2.4cqw; padding: 3cqw 4cqw; font-size: 3.6cqw; line-height: 1.4; color: #f5f0ff; text-align: center; white-space: pre-wrap; box-shadow: 0 1cqw 4cqw rgba(0,0,0,0.5); }
 
 /* ===== SLIDE — TIME ANALISADO ===== */
 .final-body { position: absolute; inset: 0; padding: 12cqw 8cqw 30cqw; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6cqw; z-index: 2; }
