@@ -138,37 +138,23 @@ function capaSlide(d, uid) {
   </div>`);
 }
 
-function altSlide(d, alt, idx, total, uid) {
-  const sFace = alt.saidaImg ? `<img class="alt-face" src="${alt.saidaImg}" alt="">` : '';
-  const cFace = alt.chegadaImg ? `<img class="alt-face" src="${alt.chegadaImg}" alt="">` : '';
+function altSlide(d, alt, uid) {
+  const outPhoto = alt.saidaImg
+    ? `<img class="alt-photo out" src="${alt.saidaImg}" alt="">`
+    : `<div class="alt-photo ph out">${esc(alt.saidaName || 'Sem foto')}</div>`;
+  const inPhoto = alt.chegadaImg
+    ? `<img class="alt-photo in" src="${alt.chegadaImg}" alt="">`
+    : `<div class="alt-photo ph in">${esc(alt.chegadaName || 'Sem foto')}</div>`;
   const verdict = alt.analise
-    ? `<div class="alt-verdict">
-         <div class="verdict-label">Por quê?</div>
-         <div class="verdict-text">${esc(alt.analise)}</div>
-       </div>`
+    ? `<div class="alt-verdict"><div class="alt-verdict-text">${esc(alt.analise)}</div></div>`
     : '';
-  return el(`<div class="slide slide-alt ${alt.analise ? '' : 'no-verdict'}">
+  return el(`<div class="slide slide-alt">
     ${slideBg(uid)}
-    <div class="alt-pill">Alteração ${idx + 1} <span>/ ${total}</span></div>
-    <div class="alt-half alt-top">
-      <div class="alt-row">
-        ${sFace}
-        <div class="alt-info">
-          <div class="alt-tag tag-out"><span class="ico">✕</span> Saiu</div>
-          <div class="alt-name">${esc(alt.saidaName || '—')}</div>
-        </div>
-      </div>
+    <div class="alt-body">
+      <div class="alt-photo-wrap">${outPhoto}</div>
+      ${verdict}
+      <div class="alt-photo-wrap">${inPhoto}</div>
     </div>
-    <div class="alt-half alt-bottom">
-      <div class="alt-row">
-        ${cFace}
-        <div class="alt-info">
-          <div class="alt-tag tag-in"><span class="ico">✓</span> Chegou</div>
-          <div class="alt-name">${esc(alt.chegadaName || '—')}</div>
-        </div>
-      </div>
-    </div>
-    ${verdict}
   </div>`);
 }
 
@@ -181,7 +167,6 @@ function finalSlide(d, uid) {
     <div class="final-body">
       <div class="final-label">Time Analisado</div>
       ${photo}
-      <div class="final-sub">EP ${epPad(d.ep)} · Galandinho</div>
     </div>
   </div>`);
 }
@@ -210,7 +195,7 @@ function buildCarousel() {
   const nodes = [];
   let uid = 0;
   nodes.push(capaSlide(d, uid++));
-  d.alts.forEach((alt, i) => nodes.push(altSlide(d, alt, i, d.alts.length, uid++)));
+  d.alts.forEach(alt => nodes.push(altSlide(d, alt, uid++)));
   nodes.push(finalSlide(d, uid++));
   nodes.push(ctaSlide(uid++));
   currentNodes = nodes;
