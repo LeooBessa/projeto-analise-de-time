@@ -67,11 +67,16 @@ function collectData() {
   for (let i = 0; i < 5; i++) {
     const sn = val('altSaidaName' + (i + 1));
     const cn = val('altChegadaName' + (i + 1));
-    const an = val('altAnalise' + (i + 1));
+    const as = val('altAnaliseSaida' + (i + 1));
+    const ac = val('altAnaliseChegada' + (i + 1));
     const si = imgs.alts[i].saida;
     const ci = imgs.alts[i].chegada;
-    if (sn || cn || an || si || ci) {
-      alts.push({ saidaName: sn, chegadaName: cn, analise: an, saidaImg: si, chegadaImg: ci });
+    if (sn || cn || as || ac || si || ci) {
+      alts.push({
+        saidaName: sn, chegadaName: cn,
+        analiseSaida: as, analiseChegada: ac,
+        saidaImg: si, chegadaImg: ci
+      });
     }
   }
   const forrKey = (g('fForragem') && g('fForragem').value) || 'mediano';
@@ -145,15 +150,22 @@ function altSlide(d, alt, uid) {
   const inPhoto = alt.chegadaImg
     ? `<img class="alt-photo in" src="${alt.chegadaImg}" alt="">`
     : `<div class="alt-photo ph in">${esc(alt.chegadaName || 'Sem foto')}</div>`;
-  const verdict = alt.analise
-    ? `<div class="alt-verdict"><div class="alt-verdict-text">${esc(alt.analise)}</div></div>`
-    : '';
+  const outText = alt.analiseSaida
+    ? `<div class="alt-text">${esc(alt.analiseSaida)}</div>` : '';
+  const inText = alt.analiseChegada
+    ? `<div class="alt-text">${esc(alt.analiseChegada)}</div>` : '';
   return el(`<div class="slide slide-alt">
     ${slideBg(uid)}
     <div class="alt-body">
-      <div class="alt-photo-wrap">${outPhoto}</div>
-      ${verdict}
-      <div class="alt-photo-wrap">${inPhoto}</div>
+      <div class="alt-side out">
+        <div class="alt-photo-wrap">${outPhoto}</div>
+        ${outText}
+      </div>
+      <div class="alt-divider"></div>
+      <div class="alt-side in">
+        <div class="alt-photo-wrap">${inPhoto}</div>
+        ${inText}
+      </div>
     </div>
   </div>`);
 }
@@ -189,6 +201,7 @@ function ctaSlide(uid) {
 
 let currentNodes = [];
 let exportCache = { files: null };
+let needsRender = true;
 
 function buildCarousel() {
   const d = collectData();
@@ -199,7 +212,7 @@ function buildCarousel() {
   nodes.push(finalSlide(d, uid++));
   nodes.push(ctaSlide(uid++));
   currentNodes = nodes;
-  exportCache.files = null; // dados mudaram → invalida render
+  needsRender = true; // dados mudaram → precisa renderizar de novo
 
   const carousel = g('carousel');
   const prevIdx = currentIndex();
@@ -330,13 +343,13 @@ async function onSaveClick() {
     return;
   }
 
-  let files = exportCache.files;
-  if (!files) {
+  if (needsRender || !exportCache.files) {
+    buildCarousel(); // garante que os slides refletem o que está no formulário agora
     btn.classList.add('busy');
     btn.textContent = '⏳ Gerando…';
     try {
-      files = await renderAll();
-      exportCache.files = files;
+      exportCache.files = await renderAll();
+      needsRender = false;
     } catch (e) {
       setHint('Erro ao gerar as imagens: ' + (e && e.message ? e.message : e));
       return;
@@ -345,7 +358,7 @@ async function onSaveClick() {
       btn.textContent = '⤓ Salvar slides';
     }
   }
-  await shareOrDownload(files);
+  await shareOrDownload(exportCache.files);
 }
 
 /* ===== INICIALIZAÇÃO ===== */
@@ -362,8 +375,8 @@ function init() {
   g('nextBtn').addEventListener('click', () => goTo(1));
   g('carousel').addEventListener('scroll', debounce(updateActive, 60));
 
-  // rebuild ao sair de um campo de texto / mudar o select
-  document.querySelector('.form-grid').addEventListener('change', buildCarousel);
+  // atualiza o carrossel enquanto o usuário digita (sem precisar sair do campo)
+  document.querySelector('.form-grid').addEventListener('input', debounce(buildCarousel, 350));
 
   window.addEventListener('resize', debounce(() => {
     const c = g('carousel');

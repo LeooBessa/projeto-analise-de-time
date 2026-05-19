@@ -85,15 +85,16 @@ textarea { resize: vertical; line-height: 1.55; }
 .swipe-hint { text-align: center; font-family: 'Syne', sans-serif; font-size: 3.2cqw; font-weight: 700; letter-spacing: 0.4cqw; color: rgba(217,70,239,0.8); text-transform: uppercase; }
 .swipe-hint span { display: inline-block; color: #d946ef; }
 
-/* ===== SLIDE — ALTERAÇÃO (foto protagonista + texto) ===== */
-.alt-body { position: absolute; inset: 0; padding: 6cqw 7cqw 22cqw; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4cqw; z-index: 2; }
+/* ===== SLIDE — ALTERAÇÃO (saiu / chegou: foto + texto) ===== */
+.alt-body { position: absolute; inset: 0; padding: 6cqw 7cqw 22cqw; display: flex; flex-direction: column; z-index: 2; }
+.alt-side { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3cqw; }
+.alt-divider { flex: none; height: 0.55cqw; border-radius: 1cqw; margin: 3cqw 0; background: linear-gradient(90deg, rgba(248,113,113,0.6), rgba(217,70,239,0.45), rgba(74,222,128,0.6)); }
 .alt-photo-wrap { flex: 1; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; }
-.alt-photo { max-height: 100%; max-width: 86cqw; object-fit: contain; border-radius: 3cqw; }
-.alt-photo.out { border: 0.5cqw solid rgba(248,113,113,0.85); box-shadow: 0 0 8cqw rgba(248,113,113,0.5), 0 0 2cqw rgba(248,113,113,0.9); }
-.alt-photo.in  { border: 0.5cqw solid rgba(74,222,128,0.85);  box-shadow: 0 0 8cqw rgba(74,222,128,0.5),  0 0 2cqw rgba(74,222,128,0.9); }
-.alt-photo.ph { width: 60cqw; height: 76cqw; font-size: 4cqw; }
-.alt-verdict { width: 100%; flex: none; background: rgba(255,255,255,0.045); border: 1px solid rgba(217,70,239,0.32); border-radius: 2.6cqw; padding: 4.2cqw 4.8cqw; }
-.alt-verdict-text { font-size: 4cqw; line-height: 1.5; color: #ede9fe; text-align: center; white-space: pre-wrap; }
+.alt-photo { max-height: 100%; max-width: 72cqw; object-fit: contain; border-radius: 3cqw; }
+.alt-photo.out { border: 0.5cqw solid rgba(248,113,113,0.9); box-shadow: 0 0 7cqw rgba(248,113,113,0.5), 0 0 2cqw rgba(248,113,113,0.9); }
+.alt-photo.in  { border: 0.5cqw solid rgba(74,222,128,0.9);  box-shadow: 0 0 7cqw rgba(74,222,128,0.5),  0 0 2cqw rgba(74,222,128,0.9); }
+.alt-photo.ph { width: 52cqw; height: 62cqw; font-size: 3.6cqw; }
+.alt-text { flex: none; font-size: 3.7cqw; line-height: 1.45; color: #ede9fe; text-align: center; white-space: pre-wrap; max-width: 94cqw; }
 
 /* ===== SLIDE — TIME ANALISADO ===== */
 .final-body { position: absolute; inset: 0; padding: 12cqw 8cqw 30cqw; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6cqw; z-index: 2; }
