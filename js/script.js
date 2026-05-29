@@ -26,27 +26,59 @@ function el(html) {
   return t.content.firstElementChild;
 }
 
-/* ===== UPLOAD DE IMAGENS ===== */
+/* ===== UPLOAD DE IMAGENS =====
+   Redimensiona a foto no momento do upload e re-codifica em PNG.
+   Fotos de celular vêm com 4000px+ e dataURL gigantes que o iOS Safari
+   trata mal no html-to-image (o slide sai sem a foto). Aqui a gente
+   normaliza para uma largura segura. */
 
-function onFile(e, type, altIdx, side) {
+function loadAndResize(file, maxW) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = ev => {
+      const im = new Image();
+      im.onload = () => {
+        const sw = im.naturalWidth || 1, sh = im.naturalHeight || 1;
+        const scale = sw > maxW ? maxW / sw : 1;
+        const w = Math.max(1, Math.round(sw * scale));
+        const h = Math.max(1, Math.round(sh * scale));
+        const cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        const ctx = cv.getContext('2d');
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(im, 0, 0, w, h);
+        resolve(cv.toDataURL('image/png'));
+      };
+      im.onerror = () => reject(new Error('falha ao decodificar imagem'));
+      im.src = ev.target.result;
+    };
+    r.onerror = () => reject(new Error('falha ao ler arquivo'));
+    r.readAsDataURL(file);
+  });
+}
+
+async function onFile(e, type, altIdx, side) {
   const f = e.target.files[0];
   if (!f) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    const data = ev.target.result;
-    if (type === 'orig') {
-      imgs.orig = data;
-      showPrev('uploadPrev1', 'uploadName1', data, f.name);
-    } else if (type === 'final') {
-      imgs.final = data;
-      showPrev('uploadPrev2', 'uploadName2', data, f.name);
-    } else if (type === 'alt') {
-      imgs.alts[altIdx][side] = data;
-      showPrev('altPrev_' + altIdx + '_' + side, null, data, null);
-    }
-    buildCarousel();
-  };
-  r.readAsDataURL(f);
+  const maxW = type === 'alt' ? 800 : 1400;
+  let data;
+  try {
+    data = await loadAndResize(f, maxW);
+  } catch (err) {
+    console.warn('onFile:', err);
+    return;
+  }
+  if (type === 'orig') {
+    imgs.orig = data;
+    showPrev('uploadPrev1', 'uploadName1', data, f.name);
+  } else if (type === 'final') {
+    imgs.final = data;
+    showPrev('uploadPrev2', 'uploadName2', data, f.name);
+  } else if (type === 'alt') {
+    imgs.alts[altIdx][side] = data;
+    showPrev('altPrev_' + altIdx + '_' + side, null, data, null);
+  }
+  buildCarousel();
 }
 
 function showPrev(prevId, nameId, src, name) {
@@ -261,17 +293,40 @@ function goTo(delta) {
 
 function setHint(msg) { g('hint').innerHTML = msg; }
 
+// substitui um <img> por um <canvas> com os pixels já desenhados.
+// html-to-image (foreignObject + SVG) às vezes solta os <img> com dataURL
+// no iOS Safari — fica um slide sem foto. Canvas vai como pixel data
+// embutido e renderiza estável em qualquer browser.
+async function imgToCanvas(im) {
+  if (!im.complete || im.naturalWidth === 0) {
+    await new Promise(res => { im.onload = im.onerror = res; });
+  }
+  const w = im.naturalWidth || 800;
+  const h = im.naturalHeight || 1000;
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  try {
+    const ctx = cv.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(im, 0, 0, w, h);
+  } catch (e) { /* segue: se der erro o canvas fica vazio */ }
+  cv.className = im.className;
+  cv.style.cssText = im.style.cssText;
+  return cv;
+}
+
 async function renderNode(node) {
   const stage = g('exportStage');
   stage.innerHTML = '';
   const clone = node.cloneNode(true);
   stage.appendChild(clone);
 
-  // aguarda as imagens decodificarem dentro do clone
+  // troca cada <img> por um <canvas> com os pixels desenhados
   const imgEls = Array.prototype.slice.call(clone.querySelectorAll('img'));
-  await Promise.all(imgEls.map(im => (
-    im.complete ? Promise.resolve() : new Promise(res => { im.onload = im.onerror = res; })
-  )));
+  for (const im of imgEls) {
+    const cv = await imgToCanvas(im);
+    im.replaceWith(cv);
+  }
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
   let blob = null;
