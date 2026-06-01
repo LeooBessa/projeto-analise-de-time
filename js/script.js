@@ -293,51 +293,114 @@ function goTo(delta) {
 
 function setHint(msg) { g('hint').innerHTML = msg; }
 
-// substitui um <img> por um <canvas> com os pixels já desenhados.
-// html-to-image (foreignObject + SVG) às vezes solta os <img> com dataURL
-// no iOS Safari — fica um slide sem foto. Canvas vai como pixel data
-// embutido e renderiza estável em qualquer browser.
-async function imgToCanvas(im) {
-  if (!im.complete || im.naturalWidth === 0) {
-    await new Promise(res => { im.onload = im.onerror = res; });
-  }
-  const w = im.naturalWidth || 800;
-  const h = im.naturalHeight || 1000;
-  const cv = document.createElement('canvas');
-  cv.width = w; cv.height = h;
-  try {
-    const ctx = cv.getContext('2d');
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(im, 0, 0, w, h);
-  } catch (e) { /* segue: se der erro o canvas fica vazio */ }
-  cv.className = im.className;
-  cv.style.cssText = im.style.cssText;
-  return cv;
+// Desenha um retângulo arredondado no contexto para uso como clipping path.
+function roundRect(ctx, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
 }
 
+// Replica object-fit: contain manualmente desenhando a imagem proporcionalmente
+// dentro da caixa (x,y,w,h), centralizada.
+function drawImageContain(ctx, im, x, y, w, h) {
+  const iw = im.naturalWidth, ih = im.naturalHeight;
+  if (!iw || !ih) return;
+  const ar = iw / ih, target = w / h;
+  let dw, dh;
+  if (ar > target) { dw = w; dh = w / ar; }
+  else             { dh = h; dw = h * ar; }
+  ctx.drawImage(im, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+}
+
+function loadImg(src) {
+  return new Promise((resolve, reject) => {
+    const i = new Image();
+    i.onload = () => resolve(i);
+    i.onerror = () => reject(new Error('img load fail'));
+    i.src = src;
+  });
+}
+
+// Renderiza um slide para PNG em duas etapas:
+//   1) html-to-image gera o slide (texto, bordas, brilhos, layout).
+//      No iOS Safari as fotos podem sair vazias dentro do <foreignObject>;
+//      tudo bem — a moldura/brilho permanecem.
+//   2) Cada foto é desenhada por cima via Canvas API nativa, medindo a
+//      posição/tamanho que ela ocupa no slide e respeitando o border-radius.
+//      Esse caminho é estável em qualquer browser.
 async function renderNode(node) {
   const stage = g('exportStage');
   stage.innerHTML = '';
   const clone = node.cloneNode(true);
   stage.appendChild(clone);
 
-  // troca cada <img> por um <canvas> com os pixels desenhados
   const imgEls = Array.prototype.slice.call(clone.querySelectorAll('img'));
-  for (const im of imgEls) {
-    const cv = await imgToCanvas(im);
-    im.replaceWith(cv);
-  }
+
+  // aguarda as imagens decodificarem antes de medir/renderizar
+  await Promise.all(imgEls.map(im => (
+    im.complete && im.naturalWidth > 0
+      ? Promise.resolve()
+      : new Promise(res => { im.onload = im.onerror = res; })
+  )));
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-  let blob = null;
+  // mede onde cada foto está dentro do palco 1080×1920
+  const stageRect = stage.getBoundingClientRect();
+  const imgInfo = imgEls.map(im => {
+    const r = im.getBoundingClientRect();
+    const cs = getComputedStyle(im);
+    return {
+      src: im.src,
+      x: r.left - stageRect.left,
+      y: r.top - stageRect.top,
+      w: r.width,
+      h: r.height,
+      br: parseFloat(cs.borderRadius) || 0
+    };
+  });
+
+  // 1) gera o slide base (sem garantia de fotos no Safari)
+  let baseBlob = null;
   try {
-    blob = await htmlToImage.toBlob(clone, {
+    baseBlob = await htmlToImage.toBlob(clone, {
       width: 1080, height: 1920, pixelRatio: 1, backgroundColor: '#08050f'
     });
   } finally {
     stage.innerHTML = '';
   }
-  return blob;
+  if (!baseBlob) return null;
+
+  // 2) sobrepõe cada foto por canvas nativo
+  const baseUrl = URL.createObjectURL(baseBlob);
+  let baseImg;
+  try { baseImg = await loadImg(baseUrl); } catch (e) { URL.revokeObjectURL(baseUrl); return null; }
+
+  const out = document.createElement('canvas');
+  out.width = 1080; out.height = 1920;
+  const ctx = out.getContext('2d');
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(baseImg, 0, 0, 1080, 1920);
+  URL.revokeObjectURL(baseUrl);
+
+  for (const info of imgInfo) {
+    if (!info.src || info.w < 1 || info.h < 1) continue;
+    let im;
+    try { im = await loadImg(info.src); } catch (e) { continue; }
+    ctx.save();
+    if (info.br > 0) {
+      roundRect(ctx, info.x, info.y, info.w, info.h, info.br);
+      ctx.clip();
+    }
+    drawImageContain(ctx, im, info.x, info.y, info.w, info.h);
+    ctx.restore();
+  }
+
+  return await new Promise(res => out.toBlob(res, 'image/png'));
 }
 
 async function renderAll() {
